@@ -20,7 +20,7 @@ import {
   TooltipTrigger,
 } from "@/modules/common/components/Tooltip"
 import supabase from '@/supabase'
-import { useParams } from 'react-router-dom'
+import { useNavigate, useParams } from 'react-router-dom'
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -41,6 +41,7 @@ export default function Room () {
   const allEmojisAdded = emojis.length === 5
   const { roomId } = useParams()
   const { toast } = useToast()
+  const navigate = useNavigate()
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
@@ -101,8 +102,10 @@ export default function Room () {
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Back to home</AlertDialogCancel>
-              <CreateRoomButton />
+            <AlertDialogCancel onClick={() => navigate('/')}>
+              Back to home
+            </AlertDialogCancel>
+            <CreateRoomButton />
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>

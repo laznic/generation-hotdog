@@ -2,10 +2,11 @@ import { Button } from "@/modules/common/components/Button"
 import supabase from '@/supabase'
 import { UpdateIcon } from "@radix-ui/react-icons"
 import { useState } from "react"
-import { redirect } from "react-router-dom"
+import { useNavigate } from "react-router-dom"
 
 export default function CreateRoomButton() {
   const [loading, setLoading] = useState(false)
+  const navigate = useNavigate()
 
   async function createRoom() {
     setLoading(true)
@@ -37,7 +38,7 @@ export default function CreateRoomButton() {
 
     if (creatorUpdateError) return console.error(creatorUpdateError)
 
-    redirect(`/room/${hotdogData?.[0].id}`)
+    navigate(`/room/${hotdogData?.[0].code}`)
   }
 
   return (

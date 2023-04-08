@@ -4,11 +4,18 @@ import App from './App'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom' 
 
 import './index.css'
+import Room from '@/modules/room/components/Room'
 
 const router = createBrowserRouter([
   {
     path: '/',
-    element: <App />
+    element: <App />,
+    children: [
+      {
+        path: '/room/:roomId',
+        element: <Room />,
+      }
+    ]
   },
 ])
 

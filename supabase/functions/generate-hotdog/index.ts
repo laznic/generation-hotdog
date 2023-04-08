@@ -66,6 +66,8 @@ serve(async (req) => {
   await supabaseClient.from('hotdogs')
     .update({
       image: file.publicUrl,
+      emojis: emojis,
+      generated_prompt: promptForImage
     })
     .eq('code', code)
 

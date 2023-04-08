@@ -13,16 +13,36 @@ import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { useRef, useState } from 'react'
 import { uniq } from 'remeda'
 
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/modules/common/components/Tooltip"
+
 export default function Room () {
-  const formRef = useRef<HTMLFormElement>(null)
+  const inputRef = useRef<HTMLInputElement>(null)
   const [emojis, setEmojis] = useState<string[]>([])
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+  const allEmojisAdded = emojis.length === 5
 
-  function onSubmit (e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  function onInputChange (e: React.ChangeEvent<HTMLInputElement>) {
+    if (allEmojisAdded) {
+      inputRef.current.value = ''
+      return
+    }
+
+    const { value } = e.target
+    const emojiRegex = /\p{Emoji}/u
+
+    if (emojiRegex.test(value)) {
+      setEmojis(uniq([...emojis, value]))
+      inputRef.current.value = ''
+    }
   }
 
   function onEmojiClick (emojiData: EmojiClickData) {
+    if (allEmojisAdded) return
     setEmojis(uniq([...emojis, emojiData.emoji]))
   }
 
@@ -43,35 +63,44 @@ export default function Room () {
         Copy Room Link
       </Button>
 
-      {emojis.map((emoji) => <span>{emoji}</span>)}
+      {emojis.map((emoji) => (<span key={emoji}>{emoji}</span>))}
 
       <article className={'relative'}>
-        <form ref={formRef} onSubmit={onSubmit}>
-          <Input />
-          <DropdownMenu open={emojiPickerOpen}>
-            <DropdownMenuTrigger className={'absolute right-1 top-1/2 -translate-y-1/2'}>
-              <Button variant={'ghost'} size={'sm'} onClick={openEmojiPicker}>
-                <FaceIcon />
-              </Button>
-            </DropdownMenuTrigger>
+        <Input ref={inputRef} onChange={onInputChange} />
+        <DropdownMenu open={emojiPickerOpen}>
+          <DropdownMenuTrigger className={'absolute right-1 top-1/2 -translate-y-1/2'}>
+            <Button variant={'ghost'} size={'sm'} onClick={openEmojiPicker}>
+              <FaceIcon />
+            </Button>
+          </DropdownMenuTrigger>
 
-            <DropdownMenuContent onInteractOutside={closeEmojiPicker} onEscapeKeyDown={closeEmojiPicker}>
-              <EmojiPicker onEmojiClick={onEmojiClick} theme={'dark'} />
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </form>
+          <DropdownMenuContent onInteractOutside={closeEmojiPicker} onEscapeKeyDown={closeEmojiPicker}>
+            <EmojiPicker lazyLoadEmojis onEmojiClick={onEmojiClick} theme={'dark'} />
+          </DropdownMenuContent>
+        </DropdownMenu>
       </article>
 
-      <Toggle>
+      <Toggle disabled={!allEmojisAdded}>
         <CheckIcon style={{ marginRight: 8 }} />
         Ready
       </Toggle>
 
       <p className={'text-xs'}>
         Generation will start once all players have pressed
-        <Button variant={'ghost'} size={'sm'} className={"text-xs font-bold ml-1 h-6 rounded-sm bg-slate-700"}>
-          Ready
-        </Button>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger>
+              <Button disabled={!allEmojisAdded} variant={'ghost'} size={'sm'} className={"text-xs font-bold ml-2 h-6 rounded-sm bg-slate-700"}>
+                Ready
+              </Button>
+            </TooltipTrigger>
+            {!allEmojisAdded && (
+            <TooltipContent>
+              You still need to add {5 - emojis.length} emoji{emojis.length === 4 ? '' : 's'}
+            </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </p>
     </div>
   )

@@ -1,13 +1,18 @@
 import { Button } from "@/modules/common/components/Button"
 import supabase from '@/supabase'
+import { UpdateIcon } from "@radix-ui/react-icons"
+import { useState } from "react"
 import { redirect } from "react-router-dom"
 
 export default function CreateRoomButton() {
+  const [loading, setLoading] = useState(false)
+
   async function createRoom() {
+    setLoading(true)
+
     const { error, data: hotdogData } = await supabase.from('hotdogs')
       .insert({})
       .select()
-
 
     if (error) return console.error(error)
     
@@ -36,7 +41,8 @@ export default function CreateRoomButton() {
   }
 
   return (
-    <Button onClick={createRoom}>
+    <Button onClick={createRoom} disabled={loading}>
+      {loading && <UpdateIcon className={'animate-spin mr-2'} />}
       Create Room
     </Button>
   )

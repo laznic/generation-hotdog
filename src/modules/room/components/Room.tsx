@@ -10,7 +10,7 @@ import {
 
 import { CheckIcon, FaceIcon, Link2Icon } from '@radix-ui/react-icons'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { uniq } from 'remeda'
 
 import {
@@ -19,12 +19,42 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/modules/common/components/Tooltip"
+import supabase from '@/supabase'
+import { useParams } from 'react-router-dom'
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/modules/common/components/AlertDialog'
+import CreateRoomButton from '@/modules/home/components/CreateRoomButton'
+import { useToast } from '@/hooks/useToast'
 
 export default function Room () {
   const inputRef = useRef<HTMLInputElement>(null)
   const [emojis, setEmojis] = useState<string[]>([])
   const [emojiPickerOpen, setEmojiPickerOpen] = useState(false)
+  const [roomError, setRoomError] = useState(false)
   const allEmojisAdded = emojis.length === 5
+  const { roomId } = useParams()
+  const { toast } = useToast()
+
+  useEffect(function checkRoomExistsOnMount() {
+    async function fetchRoomData () {
+      const { error, data } = await supabase.from('hotdogs')
+        .select()
+        .eq('code', roomId)
+
+      if (error || !data.length) {
+        setRoomError(true)
+      }
+    }
+
+    fetchRoomData()
+  }, [roomId])
 
   function onInputChange (e: React.ChangeEvent<HTMLInputElement>) {
     if (allEmojisAdded) {
@@ -54,11 +84,36 @@ export default function Room () {
     setEmojiPickerOpen(true)
   }
 
+  function copyRoomLink () {
+    const roomLink = window.location.href
+    navigator.clipboard.writeText(roomLink)
+    toast({ title: 'Copied room link to clipboard', description: roomLink, duration: 3000 })
+  }
+
+  if (roomError) {
+    return (
+      <AlertDialog open>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>This room doesn't exist</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please check the join link, or create a new room.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Back to home</AlertDialogCancel>
+              <CreateRoomButton />
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    )
+  }
+
   return (
     <div className={'container mx-auto'}>
       <h1>The Room</h1>
 
-      <Button variant={'link'}>
+      <Button variant={'link'} onClick={copyRoomLink}>
         <Link2Icon style={{ marginRight: 8 }} />
         Copy Room Link
       </Button>

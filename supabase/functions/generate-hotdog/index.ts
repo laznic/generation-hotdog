@@ -44,7 +44,7 @@ serve(async (req) => {
         }
       ],
       // Randomizing this to provide a bit of variety in results
-      cfg_scale: Math.min(10, Math.max(25, Math.floor(Math.random() * 25))),
+      cfg_scale: Math.floor(Math.random() * (25 - 10)) + 10,
       sampler: 'K_EULER_ANCESTRAL',
     })
   })

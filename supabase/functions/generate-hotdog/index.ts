@@ -43,6 +43,7 @@ serve(async (req) => {
           text: `${promptForImage}, not blurry`
         }
       ],
+      // Randomizing this to provide a bit of variety in results
       cfg_scale: Math.min(10, Math.max(25, Math.floor(Math.random() * 25))),
       sampler: 'K_EULER_ANCESTRAL',
     })

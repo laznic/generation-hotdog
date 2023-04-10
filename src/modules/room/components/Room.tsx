@@ -11,7 +11,7 @@ import {
 import { CheckIcon, FaceIcon, Link2Icon } from '@radix-ui/react-icons'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { useEffect, useRef, useState } from 'react'
-import { uniq, without, concat, equals } from 'remeda'
+import { uniq, concat, equals } from 'remeda'
 
 import {
   Tooltip,
@@ -60,7 +60,7 @@ export default function Room () {
         setPlayers((prev) => concat(prev, newPresences))
       })
       .on('presence', { event: 'leave' }, ({ leftPresences }) => {
-        setPlayers(prev => prev.filter((player) => equals(player, leftPresences[0])))
+        setPlayers(prev => prev.filter((player) => !equals(player, leftPresences[0])))
       })
   }, [])
 

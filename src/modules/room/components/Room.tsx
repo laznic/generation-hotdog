@@ -11,7 +11,7 @@ import {
 import { CheckIcon, FaceIcon, Link2Icon } from '@radix-ui/react-icons'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { useEffect, useRef, useState } from 'react'
-import { uniq } from 'remeda'
+import { uniq, without, concat, equals } from 'remeda'
 
 import {
   Tooltip,
@@ -42,6 +42,40 @@ export default function Room () {
   const { roomId } = useParams()
   const { toast } = useToast()
   const navigate = useNavigate()
+  const channel = useRef(supabase.channel(`room-${roomId}`))
+  const [players, setPlayers] = useState([])
+
+
+  // Realtime subscriptions for the room
+  // - when player joins
+  // - when player leaves
+  // - when player is updated
+  // - when player is ready
+  // - when hotdog is generated
+
+  useEffect(function addChannelHandlers () {
+    channel.current
+      .on('presence', { event: 'join' }, ({ newPresences }) => {
+        console.log('new presences', newPresences)
+        setPlayers((prev) => concat(prev, newPresences))
+      })
+      .on('presence', { event: 'leave' }, ({ leftPresences }) => {
+        setPlayers(prev => prev.filter((player) => equals(player, leftPresences[0])))
+      })
+  }, [])
+
+  useEffect(function joinRoomChannel () {
+    channel.current.subscribe(async (status) => {
+        if (status === 'SUBSCRIBED') {
+          await channel.current?.track({ online_at: new Date().toISOString(), creatorId: localStorage.getItem('creator') })
+        }
+      })
+
+    return () => {
+      channel.current?.untrack()
+      channel.current?.unsubscribe()
+    }
+  }, [])
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
@@ -51,6 +85,10 @@ export default function Room () {
 
       if (error || !data.length) {
         setRoomError(true)
+      }
+
+      if (data?.[0].image && data?.[0].finished) {
+        console.log('image exists, navigate to the wall')
       }
     }
 
@@ -115,6 +153,8 @@ export default function Room () {
   return (
     <div className={'container mx-auto'}>
       <h1>The Room</h1>
+
+      {players?.map((player) => <p key={player.presence_ref}>{player.presence_ref}</p>)}
 
       <Button variant={'link'} onClick={copyRoomLink}>
         <Link2Icon style={{ marginRight: 8 }} />

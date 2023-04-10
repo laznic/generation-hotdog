@@ -66,10 +66,35 @@ export default function Room () {
 
   useEffect(function joinRoomChannel () {
     channel.current.subscribe(async (status) => {
-        if (status === 'SUBSCRIBED') {
-          await channel.current?.track({ online_at: new Date().toISOString(), creatorId: localStorage.getItem('creator') })
-        }
-      })
+      if (!localStorage.getItem('creator')) {
+        const { error: creatorInsertError, data } = await supabase.from('creators')
+          .insert({})
+          .select()
+
+        if (creatorInsertError) return console.error(creatorInsertError)
+
+        localStorage.setItem('creator', data?.[0].id)
+      }
+
+      const creatorId = localStorage.getItem('creator')
+
+      const { data: existingCreatorAssociation } = await supabase.from('creators_hotdogs')
+        .select()
+        .eq('hotdog_code', roomId)
+        .eq('creator_id', creatorId)
+
+      if (!existingCreatorAssociation?.length) {
+        await supabase.from('creators_hotdogs')
+        .insert({ hotdog_code: roomId, creator_id: creatorId })
+      }
+
+      if (status === 'SUBSCRIBED') {
+        await channel.current?.track({
+          online_at: new Date().toISOString(),
+          creatorId: localStorage.getItem('creator')
+        })
+      }
+    })
 
     return () => {
       channel.current?.untrack()

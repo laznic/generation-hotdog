@@ -11,32 +11,26 @@ export default function CreateRoomButton() {
   async function createRoom() {
     setLoading(true)
 
-    const { error, data: hotdogData } = await supabase.from('hotdogs')
-      .insert({})
-      .select()
-
-    if (error) return console.error(error)
-    
     if (!localStorage.getItem('creator')) {
       const { error: creatorInsertError, data } = await supabase.from('creators')
-        .insert({
-          hotdog_id: hotdogData?.[0].id
-        })
+        .insert({})
         .select()
 
       if (creatorInsertError) return console.error(creatorInsertError)
 
-      localStorage.setItem('creator', data?.[0].uuid)
+      localStorage.setItem('creator', data?.[0].id)
     }
-      
-    const creatorId = localStorage.getItem('creator')
-    const { error: creatorUpdateError } = await supabase.from('creators')
-      .update({
-        hotdog_id: hotdogData?.[0].id
-      })
-      .eq('uuid', creatorId)
 
-    if (creatorUpdateError) return console.error(creatorUpdateError)
+    const creatorId = localStorage.getItem('creator')
+
+    const { error, data: hotdogData } = await supabase.from('hotdogs')
+      .insert({})
+      .select()
+
+    await supabase.from('creators_hotdogs')
+      .insert({ hotdog_code: hotdogData?.[0].code, creator_id: creatorId })
+
+    if (error) return console.error(error)
 
     navigate(`/room/${hotdogData?.[0].code}`)
   }

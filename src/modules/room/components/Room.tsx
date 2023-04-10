@@ -43,8 +43,9 @@ export default function Room () {
   const { toast } = useToast()
   const navigate = useNavigate()
   const channel = useRef(supabase.channel(`room-${roomId}`))
-  const [players, setPlayers] = useState([])
-
+  const [players, setPlayers] = useState<{ creatorId: string, ready: boolean, name: string }[]>([])
+  const [selfReady, setSelfReady] = useState(false)
+  const isSelf = (creatorId: string) => creatorId === localStorage.getItem('creator')
 
   // Realtime subscriptions for the room
   // - when player joins
@@ -56,11 +57,19 @@ export default function Room () {
   useEffect(function addChannelHandlers () {
     channel.current
       .on('presence', { event: 'join' }, ({ newPresences }) => {
-        console.log('new presences', newPresences)
         setPlayers((prev) => concat(prev, newPresences))
       })
       .on('presence', { event: 'leave' }, ({ leftPresences }) => {
         setPlayers(prev => prev.filter((player) => !equals(player, leftPresences[0])))
+      })
+      .on('broadcast', { event: 'ready' }, ({ payload }) => {
+        setPlayers((prev) => prev.map((player) => {
+          if (player.creatorId === payload.creatorId) {
+            return { ...player, ready: payload.ready }
+          }
+
+          return player
+        }))
       })
   }, [])
 
@@ -91,7 +100,8 @@ export default function Room () {
       if (status === 'SUBSCRIBED') {
         await channel.current?.track({
           online_at: new Date().toISOString(),
-          creatorId: localStorage.getItem('creator')
+          creatorId: localStorage.getItem('creator'),
+          ready: !!existingCreatorAssociation?.[0]?.ready,
         })
       }
     })
@@ -154,6 +164,28 @@ export default function Room () {
     toast({ title: 'Copied room link to clipboard', description: roomLink, duration: 3000 })
   }
 
+  async function readyUp (ready: boolean) {
+    const creatorId = localStorage.getItem('creator')
+
+    const { error } = await supabase.from('creators_hotdogs')
+      .update({ ready })
+      .eq('hotdog_code', roomId)
+      .eq('creator_id', creatorId)
+
+    if (error) return console.error(error)
+
+    setSelfReady(ready)
+
+    channel.current?.send({
+      type: 'broadcast',
+      event: 'ready',
+      payload: {
+        creatorId,
+        ready
+      }
+    })
+  }
+
   if (roomError) {
     return (
       <AlertDialog open>
@@ -179,7 +211,9 @@ export default function Room () {
     <div className={'container mx-auto'}>
       <h1>The Room</h1>
 
-      {players?.map((player) => <p key={player.presence_ref}>{player.presence_ref}</p>)}
+      {players?.map((player) => <p key={player.creatorId}>
+        {player.creatorId} - {isSelf(player.creatorId) ? selfReady.toString() : player.ready.toString()}
+      </p>)}
 
       <Button variant={'link'} onClick={copyRoomLink}>
         <Link2Icon style={{ marginRight: 8 }} />
@@ -203,7 +237,7 @@ export default function Room () {
         </DropdownMenu>
       </article>
 
-      <Toggle disabled={!allEmojisAdded}>
+      <Toggle disabled={!allEmojisAdded} onPressedChange={readyUp}>
         <CheckIcon style={{ marginRight: 8 }} />
         Ready
       </Toggle>

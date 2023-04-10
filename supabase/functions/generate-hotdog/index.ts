@@ -15,11 +15,33 @@ const supabaseClient = createClient(
 )
 
 serve(async (req) => {
-  const { emojis, code } = await req.json()
+  const { code } = await req.json()
+
+  const { data: hotdogData } = await supabaseClient.from('hotdogs')
+  .select(`
+    creators_hotdogs (
+      picked_emojis
+    )
+  `)
+  .eq('status', 'GENERATING')
+
+  if (!hotdogData?.length) {
+    return new Response(
+      JSON.stringify({ error: 'Sorry, no bonus' }),
+      { headers: { "Content-Type": "application/json" } },
+    )
+  }
+
+  // Let's just ignore the type checking here... It's only a hackathon anyways!
+  // TODO: Use recursion to get a random emoji from each creator's picked emojis so that there are at least 5 emojis in the list
+  // @ts-ignore
+  const pickedEmojis = hotdogData?.[0]?.creators_hotdogs?.map((creator: any) => (
+    creator.picked_emojis[Math.floor(Math.random() * creator.picked_emojis.length)]
+  ))
 
   const generatedPrompt = await openAI.createCompletion({
     model: 'text-davinci-003',
-    prompt: getPromptGuidelines(emojis),
+    prompt: getPromptGuidelines(pickedEmojis ?? []),
     temperature: 0.69,
     maxTokens: 500,
     topP: 0.9,
@@ -67,8 +89,9 @@ serve(async (req) => {
   await supabaseClient.from('hotdogs')
     .update({
       image: file.publicUrl,
-      emojis: emojis,
-      generated_prompt: promptForImage
+      emojis: pickedEmojis,
+      generated_prompt: promptForImage,
+      status: 'FINISHED'
     })
     .eq('code', code)
 

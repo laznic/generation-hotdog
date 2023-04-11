@@ -80,14 +80,31 @@ export default {
             opacity: 0,
             transform: 'scale(0.1, 0.1)'
           },
+        },
+        "fade-in-background": {
+          '0%': {
+            background: 'transparent',
+            'backdrop-filter': 'blur(0px) brightness(0)'
+          },
+          '10%': {
+            'backdrop-filter': 'blur(2px) brightness(2)'
+          },
+          '20%': {
+            'backdrop-filter': 'blur(4px) brightness(1)'
+          },
+          '100%': {
+            background: 'currentColor',
+            'backdrop-filter': 'blur(8px) brightness(1)'
+          }
         }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "slide-in-out": "slide-in-out 2.5s ease-in-out infinite",
-        "wormhole": "wormhole 10s ease-out infinite",
-        "wormhole-small": "wormhole-small 0.875s ease-out forwards",
+        "wormhole": "wormhole 10s ease-out forwards",
+        "wormhole-small": "wormhole-small 0.5s ease-out forwards",
+        "fade-in-background": "fade-in-background 4s ease-in-out forwards",
       },
     },
   },

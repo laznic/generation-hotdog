@@ -17,3 +17,7 @@
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
 }
+
+.conic-gradient {
+  background-image: conic-gradient(from 0deg, transparent, #fff 90deg, transparent 180deg);
+}

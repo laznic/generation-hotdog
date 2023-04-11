@@ -67,7 +67,7 @@ export default function Room () {
         }))
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'hotdogs', filter: `code=eq.${roomId}` }, ({ new: updatedRecord }) => {
-        if (updatedRecord.status === 'GENERATING') {
+        if (updatedRecord.status === 'FINISHED') {
           setShowGenerationModal(true)
         }
 

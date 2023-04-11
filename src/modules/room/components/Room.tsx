@@ -32,6 +32,7 @@ import {
 } from '@/modules/common/components/AlertDialog'
 import CreateRoomButton from '@/modules/home/components/CreateRoomButton'
 import { useToast } from '@/hooks/useToast'
+import HotdogGenerationModal from './HotdogGenerationModal'
 
 export default function Room () {
   const inputRef = useRef<HTMLInputElement>(null)
@@ -46,13 +47,7 @@ export default function Room () {
   const [players, setPlayers] = useState<{ creatorId: string, ready: boolean, name: string }[]>([])
   const [selfReady, setSelfReady] = useState(false)
   const isSelf = (creatorId: string) => creatorId === localStorage.getItem('creator')
-
-  // Realtime subscriptions for the room
-  // - when player joins
-  // - when player leaves
-  // - when player is updated
-  // - when player is ready
-  // - when hotdog is generated
+  const [showGenerationModal, setShowGenerationModal] = useState(false)
 
   useEffect(function addChannelHandlers () {
     channel.current
@@ -70,6 +65,15 @@ export default function Room () {
 
           return player
         }))
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'hotdogs', filter: `code=eq.${roomId}` }, ({ new: updatedRecord }) => {
+        if (updatedRecord.status === 'GENERATING') {
+          setShowGenerationModal(true)
+        }
+
+        if (updatedRecord.status === 'FINISHED') {
+          console.log('display generated hot dog')
+        }
       })
   }, [])
 
@@ -120,6 +124,10 @@ export default function Room () {
 
       if (error || !data.length) {
         setRoomError(true)
+      }
+
+      if (data?.[0].status === 'FINISHED') {
+        setShowGenerationModal(true)
       }
 
       if (data?.[0].image && data?.[0].finished) {
@@ -210,6 +218,8 @@ export default function Room () {
   return (
     <div className={'container mx-auto'}>
       <h1>The Room</h1>
+
+      {showGenerationModal && <HotdogGenerationModal />}
 
       {players?.map((player) => <p key={player.creatorId}>
         {player.creatorId} - {isSelf(player.creatorId) ? selfReady.toString() : player.ready.toString()}

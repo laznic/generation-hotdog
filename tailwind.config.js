@@ -96,7 +96,36 @@ export default {
             background: 'currentColor',
             'backdrop-filter': 'blur(8px) brightness(1)'
           }
-        }
+        },
+        "hotdog-image": {
+          '0%': {
+            opacity: 0,
+            'border-radius': '50%',
+            height: '0px',
+            width: '0px',
+            transform: 'scale(0)',
+            filter: 'blur(36px)'
+          },
+          '50%': {
+            opacity: 1,
+            width: '512px',
+            height: '512px',
+            transform: 'scale(1.1)',
+            filter: 'blur(10px)'
+          },
+          '91%': {
+            opacity: 1,
+            height: '512px',
+            transform: 'scale(1)',
+            filter: 'blur(0)'
+          },
+          '100%': {
+            opacity: 1,
+            height: '512px',
+            transform: 'scale(1)',
+            filter: 'blur(0)'
+          }
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -105,6 +134,7 @@ export default {
         "wormhole": "wormhole 10s ease-out forwards",
         "wormhole-small": "wormhole-small 0.5s ease-out forwards",
         "fade-in-background": "fade-in-background 4s ease-in-out forwards",
+        "hotdog-image": "hotdog-image 3s ease-in-out forwards",
       },
     },
   },

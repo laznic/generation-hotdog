@@ -36,7 +36,7 @@ serve(async (req) => {
   // TODO: Use recursion to get a random emoji from each creator's picked emojis so that there are at least 5 emojis in the list
   // @ts-ignore
   const pickedEmojis = hotdogData?.[0]?.creators_hotdogs?.map((creator: any) => (
-    creator.picked_emojis[Math.floor(Math.random() * creator.picked_emojis.length)]
+    getRandomFromList(creator.picked_emojis)
   ))
 
   const generatedPrompt = await openAI.createCompletion({
@@ -48,10 +48,33 @@ serve(async (req) => {
     frequencyPenalty: 0.42
   })
 
-  const finishingTouch = finishingTouches[Math.floor(Math.random() * finishingTouches.length)]
-  const style = styles[Math.floor(Math.random() * styles.length)]
-  const promptForImage = [generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, ''), `${style} style`, finishingTouch].join(', ')
+  const generatedKanjiPrompt = await openAI.createChatCompletion({
+    model: 'gpt-3.5-turbo',
+    messages: [
+      {
+        role: 'user',
+        content: `Translate the following text into Japanese kanji: ${generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '')}`
+      }
+    ],
+    temperature: 0,
+    maxTokens: 500,
+    topP: 1,
+    frequencyPenalty: 0
+  })
 
+  const imageType = getRandomFromList(imageTypes)
+  const style = getRandomFromList(styles)
+  const generalAdjustment = getRandomFromList(general)
+  const color = getRandomFromList(colors)
+
+  const shouldPickRenderingAndCamera = Math.random() < 0.6
+  const rendering = shouldPickRenderingAndCamera && getRandomFromList(renders)
+  const cameraShot = shouldPickRenderingAndCamera && getRandomFromList(cameraShots)
+  const cameraLens = shouldPickRenderingAndCamera && getRandomFromList(cameraLenses)
+  
+  const promptText = generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '').toLowerCase()
+  const promptForImage = [imageType, `{${promptText}}`, style, generalAdjustment, color, rendering, cameraShot, cameraLens].filter(Boolean).join(', ')
+  
   const response = await fetch(`${Deno.env.get('STABLE_DIFFUSION_HOST')}/v1/generation/stable-diffusion-v1-5/text-to-image`, {
     method: 'POST',
     headers: {
@@ -62,11 +85,11 @@ serve(async (req) => {
     body: JSON.stringify({
       text_prompts: [
         {
-          text: `${promptForImage}, not blurry`
+          text: promptForImage
         }
       ],
       // Randomizing this to provide a bit of variety in results
-      cfg_scale: Math.floor(Math.random() * (25 - 10)) + 10,
+      cfg_scale: Math.floor(Math.random() * (28 - 10)) + 10,
       sampler: 'K_EULER_ANCESTRAL',
     })
   })
@@ -90,7 +113,8 @@ serve(async (req) => {
     .update({
       image: file.publicUrl,
       emojis: pickedEmojis,
-      generated_prompt: promptForImage,
+      generated_prompt: promptText,
+      generated_kanji: generatedKanjiPrompt.choices[0].message.content,
       status: 'FINISHED'
     })
     .eq('code', code)
@@ -101,68 +125,157 @@ serve(async (req) => {
   )
 })
 
-const getPromptGuidelines = (emojis: string[]) => `
-Use emojis to generate descriptive words for an image generation prompt.
-Avoid literal descriptions and instead use the emojis to evoke atmosphere,
-feeling, vibe, emotion, or art style. Include a word to describe the
-environment or surroundings of the object in the image. Use lowercase words
-separated by commas. Begin the prompt with "A hot dog is in a..." followed
-by the environment description. Add additional keywords to describe the
-desired art style of the image. Remove duplicate or similar words.
-Emojis to use: ${emojis.join('')}
-`.trim()
+function getRandomFromList (list: string[]) {
+  return list[Math.floor(Math.random() * list.length)]
+}
 
-const finishingTouches = [
-  'highly-detailed',
-  'surrealism',
-  'trending on artstation',
-  'triadic color scheme',
-  'smooth',
-  'sharp focus',
-  'matte',
-  'elegant',
-  'illustration',
-  'digital paint',
-  'dark',
-  'gloomy',
-  'octane render',
-  '8k',
-  '4k',
-  'washed-out colors',
-  'sharp',
-  'dramatic lighting',
-  'beautiful',
-  'post-processing',
-  'picture of the day',
-  'ambient lighting',
-  'epic composition',
-  'masterpiece'
+const getPromptGuidelines = (emojis: string[]) => `Use emojis to generate descriptive words for an image generation prompt. Avoid literal descriptions and instead use the emojis to evoke atmosphere, feeling, vibe, emotion, or art style. Include a word to describe the environment or surroundings of the object in the image based on the emojis. Use lowercase words separated by commas. Begin the prompt with "a <description> hot dog in a..." followed by the environment description. Remove duplicate or similar words. Don't use the actual emojis. Emojis to use:  ${emojis.join('')}`.trim()
+
+// Courtesy of: https://animationguides.com/great-prompts-for-image-generation
+const imageTypes = [
+  "digital illustration",
+  "character reference sheet",
+  "comic strip",
+  "comic book cover",
+  "movie poster",
+  "blueprint",
+  "oil painitng",
+  "matte painting",
+  "photograph",
+  "collage",
+  "concept art",
+  "concept sheet",
+  "pixel art",
+  "fantasy map",
+  "sketch",
+  "hologram",
+  "origami art",
+  "clay",
+  "plasticine",
+  "3d illustration",
+  "low poly",
+  "comic book illustration",
+  "cartoon illustration",
+  "block illustration",
+  "anime",
+  "charcoal illustration",
+  "ink illustration",
+  "woodcut illustration",
+  "watercolor illustration",
+  "pencil illustration",
+  "collage illustration",
+  "acrylic illustration",
+  "line art",
+  "psychedelic illustration",
+  "fashion illustration",
+  "children's book illustration",
+  "caricature",
+  "chalk illustration",
+  "graffiti",
+  "polaroid",
+  "portrait",
+  "sattelite"
 ]
 
-// Since the SD API doesn't support the style param which is
-// available in DreamStudio, we'll just "hack it" here.
-// Not sure if it works properly, though. This list also has
-// some extras that are not listed in DreamStudio.
-const styles = [
-  'enhance',
-  'anime',
-  'photographic',
-  'digital art',
-  'comic book',
-  'fantasy art',
-  'analog film',
-  'neon punk',
-  'isometric',
-  'abstract',
-  'low poly',
-  'pixel art',
-  'retro',
-  'origami',
-  'vector art',
-  'watercolor',
-  'sketch',
-  'line art',
-  'craft clay',
-  'cinematic',
-  '3d model'
+const styles =  [
+  "steampunk",
+  "clockpunk",
+  "cyberpunk",
+  "dieselpunk",
+  "atompunk",
+  "rococopunk",
+  "steelpunk",
+  "stonepunk",
+  "oceanpunk",
+  "elfpunk",
+  "acidwave",
+  "weirdcore",
+  "cottagecore",
+  "dreamcore",
+  "vaporwave",
+  "baroque",
+  "film noir",
+  "boho",
+  "dadaism",
+  "cubism",
+  "expressionism",
+  "fauvism",
+  "futurism",
+  "impressionism",
+  "neo-impressionism",
+  "post-impressionism",
+  "pop art",
+  "precisionism",
+  "rococo",
+  "surrealism",
+  "street art",
+  "suprematism",
+  "art deco",
+  "abstract expressionism",
+  "classicism",
+  "baroque",
+  "art nouveau"
+]
+
+const general = [
+  "4k",
+  "8k",
+  "64k",
+  "detailed",
+  "highly detailed",
+  "high resolution",
+  "hyper detailed",
+  "hdr",
+  "uhd",
+  "professional",
+  "golden ratio"
+]
+
+const colors = [
+  "fantasy vivid colors",
+  "vivid colors",
+  "bright colors",
+  "sepia",
+  "dark colors",
+  "pastel colors",
+  "monochromatic",
+  "black & white",
+  "color splash"
+]
+
+const renders = [
+  "octane render",
+  "cinematic",
+  "low poly",
+  "isometric assets",
+  "unreal engine",
+  "unity engine",
+  "quantum wavetracing",
+  "polarizing filter"
+]
+
+const cameraShots = [
+  "long shot",
+  "closeup",
+  "pov",
+  "medium shot",
+  "closeup",
+  "extreme closeup",
+  "panoramic"
+]
+
+const cameraLenses = [
+  "ee 70mm",
+  "35mm",
+  "135mm+",
+  "300mm+",
+  "800 mm",
+  "short telephoto",
+  "super telephoto",
+  "medium telephoto",
+  "macro",
+  "wide angle",
+  "fish-eye",
+  "bokeh",
+  "sharp focus"
 ]

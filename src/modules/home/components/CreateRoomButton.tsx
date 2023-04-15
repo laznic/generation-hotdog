@@ -53,7 +53,10 @@ export default function CreateRoomButton() {
       </motion.span>
 
       <motion.div variants={arrowVariants} transition={{ duration: 0.2, ease: "easeInOut", delay: 0.1  }}>
-        {loading ? <UpdateIcon className="w-7 h-7 mb-1 animate-spin ml-2" /> : <ArrowTopRightIcon className="w-11 h-11 mb-1" />}
+        {loading
+          ? <UpdateIcon className="w-5 h-5 2xl:w-7 2xl:h-7 mb-2 xl:mb-1 animate-spin ml-2" />
+          : <ArrowTopRightIcon className="w-7 h-7 2xl:w-11 2xl:h-11 mb-2 2xl:mb-1" />
+        }
       </motion.div>
   </motion.button>
   )

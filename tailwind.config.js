@@ -135,6 +135,17 @@ export default {
             filter: 'blur(0)'
           }
         },
+        "bounce-right": {
+          '0%': {
+            transform: 'translateX(0)'
+          },
+          '50%': {
+            transform: 'translateX(25%)'
+          },
+          '100%': {
+            transform: 'translateX(0)'
+          }
+        }
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
@@ -144,6 +155,7 @@ export default {
         "wormhole-small": "wormhole-small 0.5s ease-out forwards",
         "fade-in-background": "fade-in-background 4s ease-in-out forwards",
         "hotdog-image": "hotdog-image 3s ease-in-out forwards",
+        "bounce-right": "bounce-right 1s ease-in-out infinite"
       },
     },
   },

@@ -6,9 +6,10 @@ export function cn(...inputs: ClassValue[]) {
 }
 
 export function calculateReadingTime(text: string, readingSpeed?: number) {
-  const wordsPerMinute = readingSpeed || 200; // Default reading speed is 200 words per minute
-  const words = text.split(' ').length;
-  const readingTimeInMinutes = words / wordsPerMinute;
-  const readingTimeInSeconds = readingTimeInMinutes * 60;
-  return Math.ceil(readingTimeInSeconds);
+  const wordsPerMinute = readingSpeed || 200 // Default reading speed is 200 words per minute
+  const words = text.split(' ').length
+  const readingTimeInMinutes = words / wordsPerMinute
+  const readingTimeInSeconds = readingTimeInMinutes * 60
+
+  return Math.ceil(readingTimeInSeconds)
 }

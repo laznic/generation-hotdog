@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-  font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
+  font-family: 'Dinish', Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
 
@@ -20,4 +20,16 @@
 
 .conic-gradient {
   background-image: conic-gradient(from 0deg, transparent, #fff 90deg, transparent 180deg);
+}
+
+@layer base {
+  @font-face {
+    font-family: 'Zen Antique';
+    src: url('/fonts/ZenAntique-Regular.ttf') format('truetype');
+  }
+
+  @font-face {
+    font-family: 'Dinish';
+    src: url('/fonts/DinishCondensed-Regular.woff2') format('woff2');
+  }
 }

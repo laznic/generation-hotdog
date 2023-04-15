@@ -10,6 +10,8 @@ export default {
     extend: {
       fontFamily: {
         sans: ["var(--font-sans)", ...fontFamily.sans],
+        kanji: ['Zen Antique'],
+        body: ['Dinish'],
       },
       transitionDelay: {
         '600': '600ms',

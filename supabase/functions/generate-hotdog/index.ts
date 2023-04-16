@@ -32,12 +32,7 @@ serve(async (req) => {
     )
   }
 
-  // Let's just ignore the type checking here... It's only a hackathon anyways!
-  // TODO: Use recursion to get a random emoji from each creator's picked emojis so that there are at least 5 emojis in the list
-  // @ts-ignore
-  const pickedEmojis = hotdogData?.[0]?.creators_hotdogs?.map((creator: any) => (
-    getRandomFromList(creator.picked_emojis)
-  ))
+  const pickedEmojis = pickUniqueEmojis(hotdogData?.[0]?.creators_hotdogs, 5)
 
   const generatedPrompt = await openAI.createCompletion({
     model: 'text-davinci-003',
@@ -115,6 +110,7 @@ serve(async (req) => {
       emojis: pickedEmojis,
       generated_prompt: promptText,
       generated_kanji: generatedKanjiPrompt.choices[0].message.content,
+      image_prompt: promptForImage,
       status: 'FINISHED'
     })
     .eq('code', code)
@@ -130,6 +126,52 @@ function getRandomFromList (list: string[]) {
 }
 
 const getPromptGuidelines = (emojis: string[]) => `Use emojis to generate descriptive words for an image generation prompt. Avoid literal descriptions and instead use the emojis to evoke atmosphere, feeling, vibe, emotion, or art style. Include a word to describe the environment or surroundings of the object in the image based on the emojis. Use lowercase words separated by commas. Begin the prompt with "a <description> hot dog in a..." followed by the environment description. Remove duplicate or similar words. Don't use the actual emojis. Emojis to use:  ${emojis.join('')}`.trim()
+
+interface Creator {
+  id: string;
+  picked_emojis: string[];
+}
+
+// Pick a minimum number of unique emojis from a list of creators
+// By courtesy of chatGPT because I'm tired at 12:30am and don't want to think about this anymore
+function pickUniqueEmojis(creators: Creator[], minCount: number): string[] {
+  // Create an empty object to store unique emojis for each creator
+  const uniqueEmojis: {[id: string]: string[]} = {};
+  
+  // Pick a random emoji from each creator until there are at least the minimum number of unique emojis
+  while (Object.values(uniqueEmojis).flat().length < minCount) {
+    creators.forEach((creator) => {
+      if (!uniqueEmojis[creator.id]) {
+        uniqueEmojis[creator.id] = []; // Initialize an empty array for the creator's unique emojis
+      }
+      
+      const availableEmojis = creator.picked_emojis.filter((emoji) => !uniqueEmojis[creator.id].includes(emoji));
+      if (availableEmojis.length > 0) {
+        const randomEmoji = getRandomFromList(availableEmojis); // Pick a random emoji from the creator's list of available emojis
+        
+        uniqueEmojis[creator.id].push(randomEmoji); // Add the emoji to the creator's unique emoji list
+      }
+    });
+  }
+  
+  // Combine the unique emojis for each creator into a single list
+  const pickedEmojis = Object.values(uniqueEmojis).flat();
+  
+  // Ensure the final result contains at least the minimum number of unique emojis
+  const uniquePickedEmojis = [...new Set(pickedEmojis)];
+  while (uniquePickedEmojis.length < minCount) {
+    const randomCreator = getRandomFromList(creators);
+    const availableEmojis = randomCreator.picked_emojis.filter((emoji) => !uniquePickedEmojis.includes(emoji));
+    if (availableEmojis.length > 0) {
+      const randomEmoji = getRandomFromList(availableEmojis);
+      
+      uniquePickedEmojis.push(randomEmoji);
+    }
+  }
+  
+  // Return the final list of picked emojis
+  return uniquePickedEmojis;
+}
 
 // Courtesy of: https://animationguides.com/great-prompts-for-image-generation
 const imageTypes = [

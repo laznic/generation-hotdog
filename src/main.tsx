@@ -1,11 +1,10 @@
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import App from './App'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom' 
-
 import './index.css'
 import Room from '@/modules/room/components/Room'
-import CreateRoomButton from './modules/home/components/CreateRoomButton'
+import HotdogDetails from './modules/details/components/HotdogDetails'
+import Main from './modules/home/components/Main'
 
 const router = createBrowserRouter([
   {
@@ -14,16 +13,24 @@ const router = createBrowserRouter([
     children: [
       {
         path: '/',
-        element: <CreateRoomButton />,
+        element: <Main />,
       },
       {
         path: '/room/:roomId',
         element: <Room />,
+      },
+      {
+        path: '/wall',
+        element: <HotdogDetails />,
+      },
+      {
+        path: '/wall/:id',
+        element: <HotdogDetails />,
       }
     ]
   },
 ])
 
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-    <RouterProvider router={router} />
+  <RouterProvider router={router} />
 )

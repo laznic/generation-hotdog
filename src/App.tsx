@@ -10,7 +10,7 @@ function App() {
   return (
     <main className="App">
       {!roomId ? (
-        <nav className="border-t border-white my-8 container mx-auto">
+        <nav className="border-t border-neutral-100 my-8 container mx-auto">
           <ul className="flex items-center gap-16 font-bold text-3xl tracking-wide mt-8">
             <li>
               <LinkWithAnimation to={'/'}>
@@ -25,7 +25,7 @@ function App() {
           </ul>
         </nav>
       ) : (
-        <nav className="border-t border-white my-8 container mx-auto">
+        <nav className="border-t border-neutral-100 my-8 container mx-auto">
           <ul className="flex items-center gap-16 text-lg tracking-wide mt-8">
             <li>
               <LinkWithAnimation to={'/'}>

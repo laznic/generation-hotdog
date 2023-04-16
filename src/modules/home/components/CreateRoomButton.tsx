@@ -47,7 +47,7 @@ export default function CreateRoomButton() {
 
         <motion.div
           variants={lineVariants}
-          className="absolute bottom-0 left-0 h-[2px] bg-white"
+          className="absolute bottom-0 left-0 h-[2px] bg-neutral-100"
           transition={{ duration: 0.1, ease: "easeInOut", delay: 0.1 }}
         />
       </motion.span>

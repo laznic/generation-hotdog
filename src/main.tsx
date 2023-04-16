@@ -1,6 +1,6 @@
 import ReactDOM from 'react-dom/client'
 import App from './App'
-import { createBrowserRouter, RouterProvider } from 'react-router-dom' 
+import { createBrowserRouter, Navigate, RouterProvider } from 'react-router-dom' 
 import './index.css'
 import Room from '@/modules/room/components/Room'
 import HotdogDetails from './modules/details/components/HotdogDetails'
@@ -27,6 +27,14 @@ const router = createBrowserRouter([
       {
         path: '/wall/:id',
         element: <HotdogDetails />,
+      },
+      {
+        path: '/wall/:id',
+        element: <HotdogDetails />,
+      },
+      {
+        path: '/*',
+        element:  <Navigate to="/" />,
       }
     ]
   },

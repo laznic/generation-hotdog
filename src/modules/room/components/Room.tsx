@@ -192,7 +192,6 @@ export default function Room () {
     if (showLayover.status !== 'FINISHED') return
 
     setTimeout(() => {
-      setShowLayover({})
       setBeginAnimation(true)
     }, calculateReadingTime(`Hotdog-ex ${showLayover.generated_prompt}`) * 1000)
   }, [showLayover])
@@ -227,7 +226,7 @@ export default function Room () {
       className={'mt-[7vw] relative container mx-auto grid grid-cols-2 gap-8'}>
         <PhotosensitivityWarning />
 
-        {!!showLayover.id && <HotdogEx hotdog={showLayover} />}
+        {!!showLayover.id && !beginAnimation && <HotdogEx hotdog={showLayover} />}
         {beginAnimation && <RedAnimation hotdog={showLayover} />}
 
         <section>

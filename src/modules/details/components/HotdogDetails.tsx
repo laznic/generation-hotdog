@@ -71,7 +71,7 @@ export default function HotdogDetails () {
         <div
           className={'grid shadow-2xl shadow-neutral-700 max-w-lg rounded-md overflow-hidden w-full z-10'} ref={cardRef}>
           <section className={'ring-1 ring-neutral-950 backdrop-blur-md'}>
-            <img src={hotdog?.image || '/placeholder-image.png'} className={'mx-auto'}/>
+            <img src={hotdog?.image} className={'mx-auto'}/>
           </section>
         </div> 
       </motion.div>

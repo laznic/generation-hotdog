@@ -226,7 +226,7 @@ export default function Room () {
         <PhotosensitivityWarning />
 
         {!!showLayover.id && <HotdogEx hotdog={showLayover} />}
-        {beginAnimation && <RedAnimation id={showLayover.id} />}
+        {beginAnimation && <RedAnimation hotdog={showLayover} />}
 
         <section>
           <h1 className="relative">

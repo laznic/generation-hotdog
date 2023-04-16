@@ -2,7 +2,16 @@ import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import HotdogRevealAnimation from "./HotdogRevealAnimation";
 
-export default function RedAnimation ({ id }: { id: string }) {
+interface RedAnimationProps {
+  hotdog: {
+    id: string | number,
+    generated_prompt: string,
+    generated_kanji: string,
+    image: string
+  }
+}
+
+export default function RedAnimation ({ hotdog }: RedAnimationProps) {
   const [showSecondAnim, setShowSecondAnim] = useState(false)
 
   useEffect(function triggerSecondAnimLater () {
@@ -18,7 +27,7 @@ export default function RedAnimation ({ id }: { id: string }) {
     <>
     {showSecondAnim ? (
       <>
-        <HotdogRevealAnimation id={id} />
+        <HotdogRevealAnimation hotdog={hotdog} />
         <div className={'fixed z-[150] top-0 left-0 right-0 bottom-0 mix-blend-multiply bg-black'} />
       </>
     ) : ( 

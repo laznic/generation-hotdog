@@ -13,7 +13,9 @@ export default function CreateRoomButton() {
     setLoading(true)
 
     if (!localStorage.getItem('creator')) {
-      const { error: creatorInsertError, data } = await supabase.functions.invoke('add-creator')
+      const { error: creatorInsertError, data, ...rest } = await supabase.functions.invoke('add-creator')
+
+      console.log(data, rest)
 
       if (creatorInsertError) return console.error(creatorInsertError)
 

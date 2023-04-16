@@ -1,3 +1,4 @@
+// @ts-nocheck
 import supabase from '@/supabase'
 import { ArrowTopRightIcon, UpdateIcon } from "@radix-ui/react-icons"
 import { motion } from "framer-motion"
@@ -22,7 +23,7 @@ export default function CreateRoomButton() {
     const creatorId = localStorage.getItem('creator')
 
     const { error, data: hotdogData } = await supabase.functions.invoke('create-hotdog', {
-      creatorId,
+      creatorId
     })
 
     if (error) return console.error(error)

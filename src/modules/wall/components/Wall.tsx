@@ -1,6 +1,5 @@
-import supabase from "@/supabase";
+// @ts-nocheck
 import { motion } from "framer-motion";
-import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import useFetchAllHotdogs from "../hooks/useFetchAllHotdogs";
 

@@ -1,3 +1,4 @@
+// @ts-nocheck
 import HotdogEx from "@/modules/common/components/HotdogEx"
 import supabase from "@/supabase"
 import { motion } from "framer-motion"

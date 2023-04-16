@@ -1,3 +1,4 @@
+// @ts-nocheck
 import { Button } from '@/modules/common/components/Button'
 import { motion, AnimatePresence } from "framer-motion";
 

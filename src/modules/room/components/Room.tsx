@@ -34,6 +34,7 @@ import CreateRoomButton from '@/modules/home/components/CreateRoomButton'
 import { useToast } from '@/hooks/useToast'
 import HotdogGenerationModal from './HotdogGenerationModal'
 import { calculateReadingTime } from '@/util'
+import { Checkbox } from '@/modules/common/components/Checkbox';
 
 export default function Room () {
   const [emojis, setEmojis] = useState<string[]>([])
@@ -48,7 +49,8 @@ export default function Room () {
   const isSelf = (creatorId: string) => creatorId === localStorage.getItem('creator')
   const [readyInState, setReadyInState] = useState(false)
   const selfReady = !!players.find((player) => isSelf(player.creatorId))?.ready
-  
+  const [showPhotosensitivityWarning, setShowPhotosensitivityWarning] = useState(localStorage.getItem('hide_photosensitivity_warning') !== 'true')
+
   const [showGenerationModal, setShowGenerationModal] = useState(false)
   const [showLayover, setShowLayover] = useState({
     status: 'FINISHED',
@@ -87,47 +89,47 @@ export default function Room () {
       })
   }, [])
 
-  useEffect(function joinRoomChannel () {
-    channel.current.subscribe(async (status) => {
-      if (!localStorage.getItem('creator')) {
-        const { error: creatorInsertError, data } = await supabase.from('creators')
-          .insert({})
-          .select()
+  // useEffect(function joinRoomChannel () {
+  //   channel.current.subscribe(async (status) => {
+  //     if (!localStorage.getItem('creator')) {
+  //       const { error: creatorInsertError, data } = await supabase.from('creators')
+  //         .insert({})
+  //         .select()
 
-        if (creatorInsertError) return console.error(creatorInsertError)
+  //       if (creatorInsertError) return console.error(creatorInsertError)
 
-        localStorage.setItem('creator', data?.[0].id)
-      }
+  //       localStorage.setItem('creator', data?.[0].id)
+  //     }
 
-      const creatorId = localStorage.getItem('creator')
+  //     const creatorId = localStorage.getItem('creator')
 
-      const { data: existingCreatorAssociation } = await supabase.from('creators_hotdogs')
-        .select()
-        .eq('hotdog_code', roomId)
-        .eq('creator_id', creatorId)
+  //     const { data: existingCreatorAssociation } = await supabase.from('creators_hotdogs')
+  //       .select()
+  //       .eq('hotdog_code', roomId)
+  //       .eq('creator_id', creatorId)
 
-      if (!existingCreatorAssociation?.length) {
-        await supabase.from('creators_hotdogs')
-          .insert({ hotdog_code: roomId, creator_id: creatorId })
-      }
+  //     if (!existingCreatorAssociation?.length) {
+  //       await supabase.from('creators_hotdogs')
+  //         .insert({ hotdog_code: roomId, creator_id: creatorId })
+  //     }
 
-      if (status === 'SUBSCRIBED') {
-        setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
-        setReadyInState(!!existingCreatorAssociation?.[0].ready)
+  //     if (status === 'SUBSCRIBED') {
+  //       setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
+  //       setReadyInState(!!existingCreatorAssociation?.[0].ready)
 
-        await channel.current?.track({
-          online_at: new Date().toISOString(),
-          creatorId: localStorage.getItem('creator'),
-          ready: !!existingCreatorAssociation?.[0]?.ready,
-        })
-      }
-    })
+  //       await channel.current?.track({
+  //         online_at: new Date().toISOString(),
+  //         creatorId: localStorage.getItem('creator'),
+  //         ready: !!existingCreatorAssociation?.[0]?.ready,
+  //       })
+  //     }
+  //   })
 
-    return () => {
-      channel.current?.untrack()
-      channel.current?.unsubscribe()
-    }
-  }, [])
+  //   return () => {
+  //     channel.current?.untrack()
+  //     channel.current?.unsubscribe()
+  //   }
+  // }, [])
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
@@ -197,6 +199,10 @@ export default function Room () {
     })
   }
 
+  function handlePhotosensitivityWarningCheckbox (doNotShow: boolean) {
+    localStorage.setItem('hide_photosensitivity_warning', doNotShow.toString())
+  }
+
   useEffect(function hideLayoverAfterReading () {
     if (showLayover.status !== 'FINISHED') return
 
@@ -210,16 +216,15 @@ export default function Room () {
       <AlertDialog open>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>This room doesn't exist</AlertDialogTitle>
-            <AlertDialogDescription>
-              Please check the join link, or create a new room.
+            <AlertDialogTitle className="text-2xl">This room doesn't exist</AlertDialogTitle>
+            <AlertDialogDescription className="text-lg">
+              Please check the join link and try again.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel onClick={() => navigate('/')}>
               Back to home
             </AlertDialogCancel>
-            <CreateRoomButton />
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -228,6 +233,47 @@ export default function Room () {
 
   return (
     <div className={'mt-[7vw] relative container mx-auto grid grid-cols-2 gap-8'}>
+      <AlertDialog open={showPhotosensitivityWarning}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-2xl">Before you begin</AlertDialogTitle>
+            <AlertDialogDescription className="text-lg py-4">
+              <ul className="grid gap-8">
+                <li>
+                  <strong>Photosensitivity warning:</strong>
+                  <p>
+                    The generation process involves some flashing
+                    imagery and sound. If you are sensitive to this, please consider closing
+                    your eyes for about 30 seconds, or until music ends, once every person in
+                    the room has readied up and the process starts.
+                  </p>
+                </li>
+
+                <li>
+                  <div className="items-center flex space-x-2">
+                    <Checkbox id="do-not-show" onCheckedChange={handlePhotosensitivityWarningCheckbox} />
+                    
+                    <div className="grid gap-1.5 leading-none">
+                      <label
+                        htmlFor="do-not-show"
+                        className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                      >
+                        Don't show this again
+                      </label>
+                    </div>
+                  </div>
+                </li>
+              </ul>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="text-md" onClick={() => setShowPhotosensitivityWarning(false)}>
+              Okay, thank you for the heads up!
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
       {showGenerationModal && <HotdogGenerationModal />}
 
       {/* {!!showLayover.id && <HotdogEx hotdog={showLayover} />} */}

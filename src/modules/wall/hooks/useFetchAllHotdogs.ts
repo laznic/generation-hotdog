@@ -10,7 +10,8 @@ export default function useFetchAllHotdogs () {
     async function fetchHotdogs() {
       setLoading(true)
 
-      const { data: hotdogs, error } = await supabase.functions.invoke('fetch-all-hotdogs')
+      const { data } = await supabase.functions.invoke('fetch-all-hotdogs')
+      const { data: hotdogs, error } = data
 
       setData(hotdogs ?? [])
 

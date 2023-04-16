@@ -13,9 +13,10 @@ export default function HotdogDetails () {
   
   useEffect(function fetchData () {
     async function fetch () {
-      const { error, data } = await supabase.functions.invoke('fetch-single-hotdog', { id })
+      const { data } = await supabase.functions.invoke('fetch-single-hotdog', { id })
+      const { data: hotdog } = data
 
-      setHotdog(data?.[0])
+      setHotdog(hotdog?.[0])
     }
 
     fetch()

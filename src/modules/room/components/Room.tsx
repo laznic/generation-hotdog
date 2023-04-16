@@ -84,19 +84,20 @@ export default function Room () {
   useEffect(function joinRoomChannel () {
     channel.current.subscribe(async (status) => {
       if (!localStorage.getItem('creator')) {
-        const { error: creatorInsertError, data } = await supabase.functions.invoke('add-creator')
-
+        const { data } = await supabase.functions.invoke('add-creator')
+        const { error: creatorInsertError, data: created } = data
         if (creatorInsertError) return console.error(creatorInsertError)
 
-        localStorage.setItem('creator', data?.[0].id)
+        localStorage.setItem('creator', created?.[0].id)
       }
 
       const creatorId = localStorage.getItem('creator')
 
-      const { data: existingCreatorAssociation } = await supabase.functions.invoke('add-hotdog-association', {
+      const { data: associationFetch } = await supabase.functions.invoke('add-hotdog-association', {
         hotdogCode: roomId,
         creatorId
       })
+      const { data: existingCreatorAssociation } = associationFetch
 
       if (status === 'SUBSCRIBED') {
         setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
@@ -118,13 +119,14 @@ export default function Room () {
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
-      const { error, data } = await supabase.functions.invoke('fetch-room', { roomId })
+      const { data } = await supabase.functions.invoke('fetch-room', { roomId })
+      const { error, data: room } = data
 
-      if (error || !data.length) {
+      if (error || !room.length) {
         setRoomError(true)
       }
 
-      if (data?.[0].image && data?.[0].status === 'FINISHED') {
+      if (room?.[0].image && room?.[0].status === 'FINISHED') {
         return navigate(`/wall/${data?.[0].id}`)
       }
     }
@@ -161,12 +163,14 @@ export default function Room () {
     const creatorId = localStorage.getItem('creator')
     setReadyInState(ready)
 
-    const { error } = await supabase.functions.invoke('update-creator', {
+    const { data } = await supabase.functions.invoke('update-creator', {
       ready, 
       emojis,
       creatorId,
       roomId
     })
+
+    const { error } = data
 
     if (error) return console.error(error)
 

@@ -20,6 +20,7 @@ export default function RedAnimation ({ hotdog }: RedAnimationProps) {
 
   useEffect(function playAudio () {
     const audio = document.getElementById('audio') as HTMLAudioElement
+    audio.volume = 0.8
     audio.play()
   }, [])
 

@@ -17,6 +17,10 @@
   -webkit-text-size-adjust: 100%;
 }
 
+html {
+  background-color: #000;
+}
+
 .conic-gradient {
   background-image: conic-gradient(from 0deg, transparent, #fff 90deg, transparent 180deg);
 }
@@ -35,7 +39,7 @@
 
   @font-face {
     font-family: 'Dinish';
-    src: url('/fonts/DinishCondensed-Bold.woff2') format('woff2');
+    src: url('/fonts/DinishCondensed-Bold.ttf') format('truetype');
     font-weight: 600;
   }
 }

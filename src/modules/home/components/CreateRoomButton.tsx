@@ -58,7 +58,7 @@ export default function CreateRoomButton() {
           : <ArrowTopRightIcon className="w-7 h-7 2xl:w-11 2xl:h-11 mb-2 2xl:mb-1" />
         }
       </motion.div>
-  </motion.button>
+    </motion.button>
   )
 }
 

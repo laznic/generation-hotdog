@@ -87,47 +87,47 @@ export default function Room () {
       })
   }, [])
 
-  // useEffect(function joinRoomChannel () {
-  //   channel.current.subscribe(async (status) => {
-  //     if (!localStorage.getItem('creator')) {
-  //       const { error: creatorInsertError, data } = await supabase.from('creators')
-  //         .insert({})
-  //         .select()
+  useEffect(function joinRoomChannel () {
+    channel.current.subscribe(async (status) => {
+      if (!localStorage.getItem('creator')) {
+        const { error: creatorInsertError, data } = await supabase.from('creators')
+          .insert({})
+          .select()
 
-  //       if (creatorInsertError) return console.error(creatorInsertError)
+        if (creatorInsertError) return console.error(creatorInsertError)
 
-  //       localStorage.setItem('creator', data?.[0].id)
-  //     }
+        localStorage.setItem('creator', data?.[0].id)
+      }
 
-  //     const creatorId = localStorage.getItem('creator')
+      const creatorId = localStorage.getItem('creator')
 
-  //     const { data: existingCreatorAssociation } = await supabase.from('creators_hotdogs')
-  //       .select()
-  //       .eq('hotdog_code', roomId)
-  //       .eq('creator_id', creatorId)
+      const { data: existingCreatorAssociation } = await supabase.from('creators_hotdogs')
+        .select()
+        .eq('hotdog_code', roomId)
+        .eq('creator_id', creatorId)
 
-  //     if (!existingCreatorAssociation?.length) {
-  //       await supabase.from('creators_hotdogs')
-  //         .insert({ hotdog_code: roomId, creator_id: creatorId })
-  //     }
+      if (!existingCreatorAssociation?.length) {
+        await supabase.from('creators_hotdogs')
+          .insert({ hotdog_code: roomId, creator_id: creatorId })
+      }
 
-  //     if (status === 'SUBSCRIBED') {
-  //       setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
-  //       setReadyInState(!!existingCreatorAssociation?.[0].ready)
+      if (status === 'SUBSCRIBED') {
+        setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
+        setReadyInState(!!existingCreatorAssociation?.[0].ready)
 
-  //       await channel.current?.track({
-  //         online_at: new Date().toISOString(),
-  //         creatorId: localStorage.getItem('creator'),
-  //         ready: !!existingCreatorAssociation?.[0]?.ready,
-  //       })
-  //     }
-  //   })
+        await channel.current?.track({
+          online_at: new Date().toISOString(),
+          creatorId: localStorage.getItem('creator'),
+          ready: !!existingCreatorAssociation?.[0]?.ready,
+        })
+      }
+    })
 
-  //   return () => {
-  //     channel.current?.untrack()
-  //     channel.current?.unsubscribe()
-  //   }
-  // }, [])
+    return () => {
+      channel.current?.untrack()
+      channel.current?.unsubscribe()
+    }
+  }, [])
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
@@ -269,14 +269,13 @@ export default function Room () {
         </section>
 
         <section className="mb-12">
-          <h2 className="mb-4 text-6xl">
-            {/* Share room */}
+          <h2 className="mb-2 text-6xl">
             <svg className="fill-white min-w-[15rem] w-[22vw] max-w-2xl" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 354.47 73.83"><path d="M5.91,14.01c0-5.82,3.02-9.16,8.29-9.16,6.6,0,11.69,9.84,12.81,19.36l.03,.25,1.16-.17L25.61,0l-.24,2.46c-.18,1.87-.36,3.36-.97,3.96-.51,.43-1.36,.72-2.08,.09-.11-.09-.23-.2-.37-.32-1.21-1.08-3.48-3.1-9.11-3.1S2.05,8.14,2.05,14.1c0,10.36,5.96,16.6,11.73,22.64,5.8,6.07,11.79,12.34,11.79,22.86,0,6.42-3.41,11.08-8.1,11.08-11.99,0-14.81-19.58-15.88-26.95l-.03-.23-1.55,.14,3.78,29.44,.5-.02c.17-2.93,1.07-4.76,2.34-4.76,.58,0,1.09,.22,1.67,.72,.15,.11,.3,.23,.46,.36,1.58,1.25,3.74,2.96,8.62,2.96,6,0,13.02-4.14,13.02-15.8s-7.3-18.53-13.75-24.97c-5.52-5.51-10.73-10.72-10.73-17.56Z"/><path d="M54.08,5.33h.63c1.98,0,2.82,.96,2.82,3.21V26.91h-14.95V8.53c0-2.25,.84-3.21,2.82-3.21h.63v-1.46h-11.83v1.46h.63c2.02,0,2.92,.99,2.92,3.21v58.36c0,2.16-.95,3.21-2.92,3.21h-.63v1.46h11.83v-1.46h-.63c-1.93,0-2.82-1.02-2.82-3.21V28.37h14.95v38.53c0,2.19-.9,3.21-2.82,3.21h-.63v1.46h11.83v-1.46h-.73c-1.9,0-2.82-1.05-2.82-3.21V8.53c0-2.19,.9-3.21,2.82-3.21h.73v-1.46h-11.83v1.46Z"/><path d="M103.15,68.48L90.15,2.14h-1.31v.24s-.22,4.58-2.56,4.75l-.28,.02,.71,3.78-11.7,55.91c-.38,1.52-1.11,3.27-3.41,3.27h-1.88v1.46h11.83v-1.46h-2.36c-1.15,0-1.96-.29-2.42-.86-.46-.57-.57-1.44-.31-2.58l3.89-18.52h13.41l3.9,20.06c.18,.75,.15,1.28-.09,1.57-.17,.22-.47,.33-.92,.33h-1.88v1.46h11.73v-1.46h-1.69c-1.06,0-1.49-.41-1.67-1.62Zm-9.57-21.8h-12.83l6.69-31.7,6.14,31.7Z"/><path d="M138.74,63.59c-.26-.41-.52-.83-.77-1.23l-12.76-23.06c9.56-.21,15.96-7.47,15.96-18.2,0-11.32-8.38-17.24-16.67-17.24h-14.17v1.46h.63c2.34,0,2.83,1.03,2.92,2.92v58.83c-.1,2.26-.83,3.02-2.92,3.02h-.63v1.46h11.44v-1.46h-.25c-2.08,0-2.82-.84-2.82-3.21v-29.02l16.92,29.35c.57,.85,1.04,1.8,1.42,2.56,.5,1.1,1.62,1.78,2.92,1.78h5.63v-1.46h-.72c-2.1-.08-4.05-3.2-6.12-6.51ZM118.7,5.85c0-.25,.27-.52,.52-.52h5.28c4.5,0,12.04,2.05,12.04,15.78,0,15.62-9.21,16.84-12.04,16.84-3.54,0-5.14-1.37-5.8-2.23V5.85Z"/><path d="M176.58,60.49c-2.55,8.13-7.09,9.62-15.12,9.62h-.86c-1.93,0-2.82-1.02-2.82-3.21V28.27h5.32c4.78,0,7.53,2.08,7.53,5.7v3.03h1.46V18.17h-1.46v3.03c0,3.62-2.74,5.7-7.53,5.7h-5.32V8.44c0-2.18,.84-3.11,2.82-3.11h.86c8.02,0,12.56,1.47,15.12,9.52l1.42,4.56,1.34-.45-5.37-17.33-.26,.66c-.02,.06-.57,1.39-3.14,1.57h-21.17v1.46h.63c1.99,0,2.92,.99,2.92,3.11v58.46c0,2.16-.95,3.21-2.92,3.21h-.63v1.46h20.98c2.75,.09,3.3,1.5,3.32,1.56l.25,.71,5.7-18.19,.08-.24-1.44-.43-1.7,5.51Z"/><path d="M238.29,63.59c-.26-.41-.52-.83-.77-1.23l-12.76-23.06c9.56-.21,15.96-7.47,15.96-18.2,0-11.32-8.38-17.24-16.67-17.24h-14.17v1.46h.63c2.34,0,2.83,1.03,2.92,2.92v58.83c-.1,2.26-.83,3.02-2.92,3.02h-.63v1.46h11.44v-1.46h-.25c-2.08,0-2.82-.84-2.82-3.21v-29.02l16.92,29.35c.57,.85,1.04,1.8,1.42,2.56,.5,1.1,1.62,1.78,2.92,1.78h5.63v-1.46h-.72c-2.1-.08-4.05-3.2-6.12-6.51ZM218.25,5.85c0-.25,.27-.52,.52-.52h5.28c4.5,0,12.04,2.05,12.04,15.78,0,15.62-9.21,16.84-12.04,16.84-3.54,0-5.14-1.37-5.8-2.23V5.85Z"/><path d="M263.79,3.1c-9.29,0-14.84,12.94-14.84,34.62s5.55,34.62,14.84,34.62c4.49,0,14.94-3.37,14.94-34.62,0-21.67-5.58-34.62-14.94-34.62Zm0,67.77c-2.4,0-10.21-2.39-10.21-33.16s7.14-33.06,10.21-33.06,10.31,3.22,10.31,33.06-7.21,33.16-10.31,33.16Z"/><path d="M297.3,3.1c-9.29,0-14.84,12.94-14.84,34.62s5.55,34.62,14.84,34.62c4.49,0,14.94-3.37,14.94-34.62,0-21.67-5.58-34.62-14.94-34.62Zm0,67.77c-2.4,0-10.21-2.39-10.21-33.16s7.14-33.06,10.21-33.06,10.31,3.22,10.31,33.06-7.21,33.16-10.31,33.16Z"/><path d="M353.84,5.33h.63v-1.46h-8.04l-9.97,54.63-10.02-54.43-.04-.21h-10.44v1.46h2.36c2.11,0,2.82,.76,2.82,3.01v58.75c0,2.25-.71,3.01-2.82,3.01h-2.36v1.46h11.83v-1.46h-2.36c-2.06,0-2.82-.82-2.82-3.01V12.63l11.6,58.74,.04,.2h1.37l10.48-57.39v52.72c0,2.19-.9,3.21-2.82,3.21h-.63v1.46h11.83v-1.46h-.63c-1.93,0-2.82-1.02-2.82-3.21V8.53c0-2.25,.84-3.21,2.82-3.21Z"/></svg>
           </h2>
 
           <Button variant={'link'} onClick={copyRoomLink} className="text-xl pl-0">
-            <Link2Icon style={{ marginRight: 8 }} />
-            Copy Room Link
+            <Link2Icon className="mr-2" />
+            Copy room link
           </Button>
         </section>
 
@@ -303,26 +302,26 @@ export default function Room () {
         </article>
       </section>
 
-      <section className="grid">
-        <section className="flex items-start gap-4 justify-end">
+      <section className="grid mt-10">
+        <section className="flex items-start gap-6 justify-end flex-wrap">
           {players?.map((player) => (
             <article key={player.creatorId} className={`relative grid items-center justify-center text-center w-fit ${player.ready || (isSelf(player.creatorId) && readyInState) ? 'text-white' : 'text-neutral-700'}`}>
               {player.ready || (isSelf(player.creatorId) && readyInState) ? (
-                <article className="absolute text-white rounded-full top-2 -left-3">
-                  <CheckCircledIcon className="w-4 h-4"/>
+                <article className="absolute text-white rounded-full top-4 -left-5">
+                  <CheckCircledIcon className="w-6 h-6"/>
                 </article>
               ) : (
-                <article className="absolute text-neutral-500 rounded-full top-2 -left-3">
-                  <CrossCircledIcon className="w-4 h-4" />
+                <article className="absolute text-neutral-500 rounded-full top-4 -left-5">
+                  <CrossCircledIcon className="w-6 h-6" />
                 </article>
               )}
-              <PersonIcon className="w-8 h-8" />
+              <PersonIcon className="w-12 h-12" />
               {isSelf(player.creatorId) && <span>You</span>}
             </article>
           ))}
         </section>
 
-        <section className="flex flex-col h-fit w-full items-end justify-end">
+        <section className="flex flex-col h-fit w-full items-end justify-end mt-14">
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger>
@@ -351,7 +350,7 @@ export default function Room () {
             </Tooltip>
           </TooltipProvider>
 
-          <p className={'text-lg'}>
+          <p className={'text-lg text-neutral-500'}>
             Generation will start once all players are ready.
           </p>
         </section>

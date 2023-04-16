@@ -6,6 +6,7 @@ import { serve } from "https://deno.land/std@0.131.0/http/server.ts"
 import { OpenAI } from "https://deno.land/x/openai/mod.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { base64 } from "https://cdn.jsdelivr.net/gh/hexagon/base64@1/src/base64.js";
+import { corsHeaders } from "../_shared/cors.ts";
 
 // @ts-ignore
 const openAI = new OpenAI(Deno.env.get('OPENAI_API_KEY'));
@@ -15,6 +16,10 @@ const supabaseClient = createClient(
 )
 
 serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response('ok', { headers: corsHeaders })
+  }
+
   const { code } = await req.json()
 
   const { data: hotdogData } = await supabaseClient.from('hotdogs')
@@ -28,7 +33,7 @@ serve(async (req) => {
   if (!hotdogData?.length) {
     return new Response(
       JSON.stringify({ error: 'Sorry, no bonus' }),
-      { headers: { "Content-Type": "application/json" } },
+      { headers: { ...corsHeaders, "Content-Type": "application/json" } },
     )
   }
 
@@ -117,7 +122,7 @@ serve(async (req) => {
 
   return new Response(
     JSON.stringify({ generatedFile: file.publicUrl, promptForImage }),
-    { headers: { "Content-Type": "application/json" } },
+    { headers: { ...corsHeaders, "Content-Type": "application/json" } },
   )
 })
 

@@ -24,7 +24,7 @@ export default function CreateRoomButton() {
     const creatorId = localStorage.getItem('creator')
 
     const { data } = await supabase.functions.invoke('create-hotdog', {
-      creatorId
+      body: { creatorId }
     })
     const { error, data: hotdogData } = data
 

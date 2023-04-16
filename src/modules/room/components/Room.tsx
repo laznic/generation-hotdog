@@ -94,8 +94,10 @@ export default function Room () {
       const creatorId = localStorage.getItem('creator')
 
       const { data: associationFetch } = await supabase.functions.invoke('add-hotdog-association', {
-        hotdogCode: roomId,
-        creatorId
+        body: {
+          hotdogCode: roomId,
+          creatorId
+        }
       })
       const { data: existingCreatorAssociation } = associationFetch
 
@@ -119,7 +121,7 @@ export default function Room () {
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
-      const { data } = await supabase.functions.invoke('fetch-room', { roomId })
+      const { data } = await supabase.functions.invoke('fetch-room', { body: { roomId } })
       const { error, data: room } = data
 
       if (error || !room.length) {
@@ -164,10 +166,12 @@ export default function Room () {
     setReadyInState(ready)
 
     const { data } = await supabase.functions.invoke('update-creator', {
-      ready, 
-      emojis,
-      creatorId,
-      roomId
+      body: {
+        ready, 
+        emojis,
+        creatorId,
+        roomId
+      }
     })
 
     const { error } = data

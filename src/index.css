@@ -19,10 +19,19 @@
 
 html {
   background-color: #000;
+  overflow-x: hidden;
 }
 
 .conic-gradient {
+  background-image: conic-gradient(from 0deg, transparent, #dc2626 90deg, transparent 180deg);
+}
+
+.conic-gradient-white {
   background-image: conic-gradient(from 0deg, transparent, #fff 90deg, transparent 180deg);
+}
+
+.conic-gradient-pink {
+  background-image: conic-gradient(from 0deg, transparent, #f9a8d4 90deg, transparent 180deg);
 }
 
 @layer base {

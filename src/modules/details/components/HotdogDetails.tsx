@@ -1,55 +1,80 @@
 import HotdogEx from "@/modules/common/components/HotdogEx"
-import { useEffect, useRef } from "react"
+import supabase from "@/supabase"
+import { motion } from "framer-motion"
+import { useEffect, useRef, useState } from "react"
+import { useParams } from "react-router-dom"
 import VanillaTilt from "vanilla-tilt"
 
 export default function HotdogDetails () {
   const cardRef = useRef(null)
+  const { id } = useParams()
+  const [hotdog, setHotdog] = useState(null)
+  
+  useEffect(function fetchData () {
+    async function fetch () {
+      const { error, data } = await supabase.from('hotdogs')
+      .select()
+      .eq('id', id)
+
+      setHotdog(data?.[0])
+    }
+
+    fetch()
+  }, [id])
 
   useEffect(function addTiltHandling () {
-    VanillaTilt.init(cardRef.current, {
-      max: 10,
-      speed: 750,
-      glare: true,
-      'max-glare': 0.25,
-      scale: 1.15
-    })
-  }, [])
+    if (hotdog) {
+      VanillaTilt.init(cardRef.current, {
+        max: 10,
+        speed: 750,
+        glare: true,
+        'max-glare': 0.25,
+        scale: 1.15
+      })
+    }
+
+  }, [hotdog])
+
+  if (!hotdog) return null
 
   return (
-    <div className="flex items-center justify-center w-full h-full">
-      <div>
-        <HotdogEx
-          hotdog={{
-            id: 1,
-            generated_prompt: 'a mouth-watering hot dog in a, futuristic, peachy, steamy, drool-worthy atmosphere',
-            generated_kanji: '未来的なピーチ色の蒸気が立ち込める、よだれが出るような雰囲気の中で、おいしそうなホットドッグ。'
-          }}
-          noBackground
-        />
-        
-        <details className="relative mt-8 text-neutral-400 max-w-lg">
-          <summary className={'cursor-pointer'}>
-            {'Meta data'}
-          </summary>
-          <div className={'cursor-pointer absolute mt-3 py-3 px-4 bg-neutral-900 border border-neutral-800 rounded-md'}>
-            <ul className="pl-0">
-              <li className={'border-b border-dashed border-neutral-700 pb-2 mb-2'}>
-                {'Emojis used: 🎉🥵💪😊🙌'}
-              </li>
-              <li>
-                {'Image prompt: ink illustration, {a suggestive, playful, sultry hot dog in a neon-lit, vibrant alleyway}, cyberpunk, highly detailed, golden ratio, natural light, bright colors'}
-              </li>
-            </ul>
-          </div>
-        </details>
-      </div>
+    <div className="container mx-auto">
+      <motion.div
+        className="mt-[7vw] w-full h-full flex items-center justify-between"
+        initial={{ scale: 0.9, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.5, ease: 'easeInOut' }}
+        >
+        <div>
+          <HotdogEx
+            hotdog={hotdog}
+            noBackground
+          />
+          
+          <details className="relative mt-8 text-neutral-400 max-w-lg">
+            <summary className={'cursor-pointer'}>
+              {'Meta data'}
+            </summary>
+            <div className={'cursor-pointer absolute mt-3 py-3 px-4 bg-neutral-900 border border-neutral-800 rounded-md'}>
+              <ul className="pl-0">
+                <li className={'border-b border-dashed border-neutral-700 pb-2 mb-2'}>
+                  {`Emojis used: ${hotdog?.emojis.join('')}`}
+                </li>
+                <li>
+                  {`Image prompt: ${hotdog?.image_prompt}`}
+                </li>
+              </ul>
+            </div>
+          </details>
+        </div>
 
-      <div
-        className={'grid shadow-2xl shadow-neutral-700 max-w-lg rounded-md overflow-hidden w-full z-10'} ref={cardRef}>
-        <section className={'ring-1 ring-neutral-950 backdrop-blur-md'}>
-          <img src="/placeholder-image.png" className={'animate-hotdog-image opacity-0 scale-0 blur-xl mx-auto'}/>
-        </section>
-      </div> 
+        <div
+          className={'grid shadow-2xl shadow-neutral-700 max-w-lg rounded-md overflow-hidden w-full z-10'} ref={cardRef}>
+          <section className={'ring-1 ring-neutral-950 backdrop-blur-md'}>
+            <img src={hotdog?.image || '/placeholder-image.png'} className={'mx-auto'}/>
+          </section>
+        </div> 
+      </motion.div>
     </div>
   )
 }

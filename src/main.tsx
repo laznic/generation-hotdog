@@ -5,6 +5,7 @@ import './index.css'
 import Room from '@/modules/room/components/Room'
 import HotdogDetails from './modules/details/components/HotdogDetails'
 import Main from './modules/home/components/Main'
+import Wall from './modules/wall/components/Wall'
 
 const router = createBrowserRouter([
   {
@@ -21,7 +22,7 @@ const router = createBrowserRouter([
       },
       {
         path: '/wall',
-        element: <HotdogDetails />,
+        element: <Wall />,
       },
       {
         path: '/wall/:id',

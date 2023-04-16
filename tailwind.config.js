@@ -22,9 +22,16 @@ export default {
         '1700': '1700ms',
         '1800': '1800ms',
         '2000': '2000ms',
+        '2500': '2500ms',
+        '2700': '2700ms',
         '3000': '3000ms',
+        '3500': '3500ms',
+        '3700': '3700ms',
         '4000': '4000ms',
         '5000': '5000ms',
+        '5200': '5200ms',
+        '7500': '7500ms',
+        '7700': '7700ms',
       },
       transitionDuration: {
         2000: '2000ms',
@@ -145,6 +152,14 @@ export default {
           '100%': {
             transform: 'translateX(0)'
           }
+        },
+        appear: {
+          '0%': {
+            opacity: 0,
+          },
+          '100%': {
+            opacity: 1,
+          }
         }
       },
       animation: {
@@ -154,8 +169,9 @@ export default {
         "wormhole": "wormhole 10s ease-out forwards",
         "wormhole-small": "wormhole-small 0.5s ease-out forwards",
         "fade-in-background": "fade-in-background 4s ease-in-out forwards",
-        "hotdog-image": "hotdog-image 3s ease-in-out forwards",
-        "bounce-right": "bounce-right 1s ease-in-out infinite"
+        "hotdog-image": "hotdog-image 11s ease-in-out forwards",
+        "bounce-right": "bounce-right 1s ease-in-out infinite",
+        "appear": "appear 0s ease-in-out forwards"
       },
     },
   },

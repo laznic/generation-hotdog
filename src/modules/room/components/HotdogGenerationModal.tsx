@@ -5,7 +5,6 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/modules/common/components/Dialog"
-import HotdogRevealAnimation from "./HotdogRevealAnimation"
 
 export default function HotdogGenerationModal () {
   return (

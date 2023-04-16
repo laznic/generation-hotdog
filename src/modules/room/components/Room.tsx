@@ -163,7 +163,7 @@ export default function Room () {
     const { error } = await supabase.functions.invoke('update-creator', {
       ready, 
       emojis,
-      creatorId
+      creatorId,
       roomId
     })
 

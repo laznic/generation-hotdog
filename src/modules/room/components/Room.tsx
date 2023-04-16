@@ -1,7 +1,6 @@
 import { Button } from '@/modules/common/components/Button'
 import { motion } from "framer-motion";
 
-
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -30,11 +29,10 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from '@/modules/common/components/AlertDialog'
-import CreateRoomButton from '@/modules/home/components/CreateRoomButton'
 import { useToast } from '@/hooks/useToast'
 import HotdogGenerationModal from './HotdogGenerationModal'
 import { calculateReadingTime } from '@/util'
-import { Checkbox } from '@/modules/common/components/Checkbox';
+import PhotosensitivityWarning from './PhotosensitivityWarning';
 
 export default function Room () {
   const [emojis, setEmojis] = useState<string[]>([])
@@ -48,10 +46,8 @@ export default function Room () {
   const [players, setPlayers] = useState<{ creatorId: string, ready: boolean, name: string }[]>([])
   const isSelf = (creatorId: string) => creatorId === localStorage.getItem('creator')
   const [readyInState, setReadyInState] = useState(false)
-  const selfReady = !!players.find((player) => isSelf(player.creatorId))?.ready
-  const [showPhotosensitivityWarning, setShowPhotosensitivityWarning] = useState(localStorage.getItem('hide_photosensitivity_warning') !== 'true')
+  const [isGenerating, setIsGenerating] = useState(true)
 
-  const [showGenerationModal, setShowGenerationModal] = useState(false)
   const [showLayover, setShowLayover] = useState({
     status: 'FINISHED',
     id: 1,
@@ -80,7 +76,7 @@ export default function Room () {
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'hotdogs', filter: `code=eq.${roomId}` }, ({ new: updatedRecord }) => {
         if (updatedRecord.status === 'GENERATING') {
-          setShowGenerationModal(true)
+          setIsGenerating(true)
         }
 
         if (updatedRecord.status === 'FINISHED') {
@@ -142,7 +138,7 @@ export default function Room () {
       }
 
       if (data?.[0].status === 'FINISHED') {
-        setShowGenerationModal(true)
+        return navigate(`/wall/${data?.[0].id}`)
       }
 
       if (data?.[0].image && data?.[0].finished) {
@@ -199,9 +195,7 @@ export default function Room () {
     })
   }
 
-  function handlePhotosensitivityWarningCheckbox (doNotShow: boolean) {
-    localStorage.setItem('hide_photosensitivity_warning', doNotShow.toString())
-  }
+
 
   useEffect(function hideLayoverAfterReading () {
     if (showLayover.status !== 'FINISHED') return
@@ -233,48 +227,7 @@ export default function Room () {
 
   return (
     <div className={'mt-[7vw] relative container mx-auto grid grid-cols-2 gap-8'}>
-      <AlertDialog open={showPhotosensitivityWarning}>
-        <AlertDialogContent>
-          <AlertDialogHeader>
-            <AlertDialogTitle className="text-2xl">Before you begin</AlertDialogTitle>
-            <AlertDialogDescription className="text-lg py-4">
-              <ul className="grid gap-8">
-                <li>
-                  <strong>Photosensitivity warning:</strong>
-                  <p>
-                    The generation process involves some flashing
-                    imagery and sound. If you are sensitive to this, please consider closing
-                    your eyes for about 30 seconds, or until music ends, once every person in
-                    the room has readied up and the process starts.
-                  </p>
-                </li>
-
-                <li>
-                  <div className="items-center flex space-x-2">
-                    <Checkbox id="do-not-show" onCheckedChange={handlePhotosensitivityWarningCheckbox} />
-                    
-                    <div className="grid gap-1.5 leading-none">
-                      <label
-                        htmlFor="do-not-show"
-                        className="text-md font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                      >
-                        Don't show this again
-                      </label>
-                    </div>
-                  </div>
-                </li>
-              </ul>
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="text-md" onClick={() => setShowPhotosensitivityWarning(false)}>
-              Okay, thank you for the heads up!
-            </AlertDialogCancel>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {showGenerationModal && <HotdogGenerationModal />}
+      <PhotosensitivityWarning />
 
       {/* {!!showLayover.id && <HotdogEx hotdog={showLayover} />} */}
 
@@ -368,37 +321,66 @@ export default function Room () {
         </section>
 
         <section className="absolute bottom-56 right-0 flex flex-col h-fit items-end justify-end mt-14">
-          <TooltipProvider delayDuration={100}>
-            <Tooltip>
-              <TooltipTrigger>
-              <motion.button
-                  onClick={() => readyUp(!readyInState)}
-                  className="relative flex items-center w-fit"
-                  disabled={!allEmojisAdded}
-                  animate={readyInState ? 'hover' : 'default'}
-                  transition={{ duration: 0.2, ease: "easeInOut" }}>
-                  <motion.span variants={buttonVariants} className="inline-flex items-center opacity-50 relative font-bold text-xl md:text-2xl 2xl:text-4xl pb-2">
-                    {readyInState ? <CheckCircledIcon className="w-6 h-6 mr-2 2xl:mt-1" /> : <CrossCircledIcon className="mr-2 w-6 h-6 2xl:mt-1" />}
-                    READY
-                    <motion.div
-                      variants={lineVariants}
-                      className="absolute bottom-0 left-0 h-[2px] bg-neutral-100"
-                      transition={{ duration: 0.1, ease: "easeInOut", delay: 0.1 }}
-                    />
-                  </motion.span>
-                </motion.button>
-              </TooltipTrigger>
-              {!allEmojisAdded && (
-              <TooltipContent className="rounded-sm dark:bg-neutral-950">
-                You still need to add {5 - emojis.length} emoji{emojis.length === 4 ? '' : 's'}
-              </TooltipContent>
-              )}
-            </Tooltip>
-          </TooltipProvider>
+          {isGenerating ? (
+            <>
+              <motion.div
+                className="relative flex items-center w-fit"
+                animate={'hover'}
+                transition={{ duration: 0.2, ease: "easeInOut" }}>
+                <motion.span variants={buttonVariants} className="inline-flex items-center opacity-50 relative font-bold text-xl md:text-2xl 2xl:text-4xl pb-2">
+                  GENERATING
+                  <div className={'flex items-center ml-4'}>
+                    <div className={'w-2 h-2 bg-neutral-100 rounded-full animate-slide-in-out delay-600 opacity-0'} />
+                    <div className={'w-2 h-2 bg-neutral-100 rounded-full animate-slide-in-out delay-300 opacity-0'} />
+                    <div className={'w-2 h-2 bg-neutral-100 rounded-full animate-slide-in-out opacity-0'} />
+                  </div>
+                  <motion.div
+                    variants={lineVariants}
+                    className="absolute bottom-0 left-0 h-[2px] bg-neutral-100"
+                    transition={{ duration: 0.1, ease: "easeInOut", delay: 0.1 }}
+                  />
+                </motion.span>
+              </motion.div>
+              <p className={'text-lg text-neutral-500 mb-2'}>
+                This can take a while, so please be patient.
+              </p>
+            </>
+          ) : (
+            <>
+              <TooltipProvider delayDuration={100}>
+                <Tooltip>
+                  <TooltipTrigger>
+                  <motion.button
+                      onClick={() => readyUp(!readyInState)}
+                      className="relative flex items-center w-fit"
+                      disabled={!allEmojisAdded}
+                      animate={readyInState ? 'hover' : 'default'}
+                      transition={{ duration: 0.2, ease: "easeInOut" }}>
+                      <motion.span variants={buttonVariants} className="inline-flex items-center opacity-50 relative font-bold text-xl md:text-2xl 2xl:text-4xl pb-2">
+                        READY
+                        {readyInState ? <CheckCircledIcon className="w-6 h-6 ml-2 2xl:mt-1" /> : <CrossCircledIcon className="ml-2 w-6 h-6 2xl:mt-1" />}
+                        <motion.div
+                          variants={lineVariants}
+                          className="absolute bottom-0 left-0 h-[2px] bg-neutral-100"
+                          transition={{ duration: 0.1, ease: "easeInOut", delay: 0.1 }}
+                        />
+                      </motion.span>
+                    </motion.button>
+                  </TooltipTrigger>
+                  {!allEmojisAdded && (
+                  <TooltipContent className="rounded-sm dark:bg-neutral-950">
+                    You still need to add {5 - emojis.length} emoji{emojis.length === 4 ? '' : 's'}
+                  </TooltipContent>
+                  )}
+                </Tooltip>
+              </TooltipProvider>
 
-          <p className={'text-lg text-neutral-500 mb-2'}>
-            Generation will start once all players are ready.
-          </p>
+              <p className={'text-lg text-neutral-500 mb-2'}>
+                Generation will start once all players are ready.
+              </p>
+            </>
+          )}
+        
         </section>
       </section>
     </div>

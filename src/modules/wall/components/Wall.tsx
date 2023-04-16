@@ -35,7 +35,7 @@ export default function Wall () {
             whileHover={{ scale: 1.05 }}
             key={hotdog.id}>
             <Link to={`/wall/${hotdog.id}`} className="bg-neutral-950 w-full">
-              <img src={hotdog.image || '/placeholder-image.png'} className="aspect-video object-cover w-full h-full" />
+              <img src={hotdog.image} className="aspect-video object-cover w-full h-full" />
             </Link>
           </motion.li>
         ))}

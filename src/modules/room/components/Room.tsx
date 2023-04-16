@@ -83,9 +83,7 @@ export default function Room () {
   useEffect(function joinRoomChannel () {
     channel.current.subscribe(async (status) => {
       if (!localStorage.getItem('creator')) {
-        const { error: creatorInsertError, data } = await supabase.from('creators')
-          .insert({})
-          .select()
+        const { error: creatorInsertError, data } = await supabase.functions.invoke('add-creator')
 
         if (creatorInsertError) return console.error(creatorInsertError)
 
@@ -94,15 +92,10 @@ export default function Room () {
 
       const creatorId = localStorage.getItem('creator')
 
-      const { data: existingCreatorAssociation } = await supabase.from('creators_hotdogs')
-        .select()
-        .eq('hotdog_code', roomId)
-        .eq('creator_id', creatorId)
-
-      if (!existingCreatorAssociation?.length) {
-        await supabase.from('creators_hotdogs')
-          .insert({ hotdog_code: roomId, creator_id: creatorId })
-      }
+      const { data: existingCreatorAssociation } = await supabase.functions.invoke('add-hotdog-association', {
+        hotdogCode: roomId,
+        creatorId
+      })
 
       if (status === 'SUBSCRIBED') {
         setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
@@ -124,9 +117,7 @@ export default function Room () {
 
   useEffect(function checkRoomExistsOnMount() {
     async function fetchRoomData () {
-      const { error, data } = await supabase.from('hotdogs')
-        .select()
-        .eq('code', roomId)
+      const { error, data } = await supabase.functions.invoke('fetch-room', { roomId })
 
       if (error || !data.length) {
         setRoomError(true)
@@ -169,10 +160,12 @@ export default function Room () {
     const creatorId = localStorage.getItem('creator')
     setReadyInState(ready)
 
-    const { error } = await supabase.from('creators_hotdogs')
-      .update({ ready, picked_emojis: emojis })
-      .eq('hotdog_code', roomId)
-      .eq('creator_id', creatorId)
+    const { error } = await supabase.functions.invoke('update-creator', {
+      ready, 
+      emojis,
+      creatorId
+      roomId
+    })
 
     if (error) return console.error(error)
 

@@ -12,9 +12,7 @@ export default function CreateRoomButton() {
     setLoading(true)
 
     if (!localStorage.getItem('creator')) {
-      const { error: creatorInsertError, data } = await supabase.from('creators')
-        .insert({})
-        .select()
+      const { error: creatorInsertError, data } = await supabase.functions.invoke('add-creator')
 
       if (creatorInsertError) return console.error(creatorInsertError)
 
@@ -23,12 +21,9 @@ export default function CreateRoomButton() {
 
     const creatorId = localStorage.getItem('creator')
 
-    const { error, data: hotdogData } = await supabase.from('hotdogs')
-      .insert({})
-      .select()
-
-    await supabase.from('creators_hotdogs')
-      .insert({ hotdog_code: hotdogData?.[0].code, creator_id: creatorId })
+    const { error, data: hotdogData } = await supabase.functions.invoke('create-hotdog', {
+      creatorId,
+    })
 
     if (error) return console.error(error)
 

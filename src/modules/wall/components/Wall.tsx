@@ -2,22 +2,10 @@ import supabase from "@/supabase";
 import { motion } from "framer-motion";
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useFetchAllHotdogs from "../hooks/useFetchAllHotdogs";
 
 export default function Wall () {
-  const [data, setData] = useState([])
-    
-  useEffect(function fetchData () {
-    async function fetch () {
-      const { data } = await supabase.from('hotdogs')
-      .select()
-      .eq('status', 'FINISHED')
-      .order('id')
-
-      setData(data)
-    }
-
-    fetch()
-  }, [])
+  const { data } = useFetchAllHotdogs()
 
   if (!data.length) return null
 

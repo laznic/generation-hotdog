@@ -2,7 +2,16 @@
 import { useEffect, useState } from "react"
 import { useNavigate } from "react-router-dom"
 
-export default function HotdogRevealAnimation ({ id }: { id: string }) {
+interface HotdogRevealAnimationProps {
+  hotdog: {
+    id: string | number,
+    generated_prompt: string,
+    generated_kanji: string,
+    image: string
+  }
+}
+
+export default function HotdogRevealAnimation ({ hotdog }: HotdogRevealAnimationProps) {
   const [showHotDogImage, setShowHotdogImage] = useState(false)
   const navigate = useNavigate()
 
@@ -14,7 +23,7 @@ export default function HotdogRevealAnimation ({ id }: { id: string }) {
 
   useEffect(function goToHotdogDetails() {
     setTimeout(() => {
-      navigate(`/wall/${id}`)
+      navigate(`/wall/${hotdog.id}`)
     }, 24000)
   }, [])
 
@@ -25,7 +34,7 @@ export default function HotdogRevealAnimation ({ id }: { id: string }) {
           <div
             className={'grid max-w-lg rounded-md overflow-hidden w-full z-10 animate-hotdog-image opacity-0 scale-0 blur-xl shadow-2xl shadow-neutral-500'}>
             <section className={'ring-1 ring-black backdrop-blur-md'}>1
-              <img src="/placeholder-image.png" className={'animate-hotdog-image rounded-md opacity-0 scale-0 blur-xl mx-auto'}/>
+              <img src={hotdog.image} className={'animate-hotdog-image rounded-md opacity-0 scale-0 blur-xl mx-auto'}/>
             </section>
           </div> 
         )}

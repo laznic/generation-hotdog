@@ -367,7 +367,7 @@ export default function Room () {
           ))}
         </section>
 
-        <section className="flex flex-col h-fit w-full items-end justify-end mt-14">
+        <section className="absolute bottom-56 right-0 flex flex-col h-fit items-end justify-end mt-14">
           <TooltipProvider delayDuration={100}>
             <Tooltip>
               <TooltipTrigger>
@@ -396,7 +396,7 @@ export default function Room () {
             </Tooltip>
           </TooltipProvider>
 
-          <p className={'text-lg text-neutral-500'}>
+          <p className={'text-lg text-neutral-500 mb-2'}>
             Generation will start once all players are ready.
           </p>
         </section>

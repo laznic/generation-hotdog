@@ -71,7 +71,9 @@ export default function Room () {
         }))
       })
       .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'hotdogs', filter: `code=eq.${roomId}` }, ({ new: updatedRecord }) => {
+        console.log('UPDATED RECORD', updatedRecord)
         if (updatedRecord.status === 'GENERATING') {
+          console.log('GENERATING')
           setIsGenerating(true)
         }
 
@@ -129,7 +131,7 @@ export default function Room () {
       }
 
       if (room?.[0].image && room?.[0].status === 'FINISHED') {
-        return navigate(`/wall/${data?.[0].id}`)
+        // return navigate(`/wall/${room?.[0].id}`)
       }
     }
 

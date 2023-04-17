@@ -14,6 +14,7 @@ export default function useFetchAllHotdogs () {
       const { data: hotdogs, error } = await supabase.from('hotdogs')
         .select(`id, image`)
         .eq('status', 'FINISHED')
+        .order('id')
 
       setData(hotdogs ?? [])
 

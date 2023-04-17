@@ -10,11 +10,11 @@ interface LinkWithAnimationProps {
 export default function LinkWithAnimation ({ children, className, to }: LinkWithAnimationProps) {
   return (
     <motion.div
-      className={`relative ${className}`}
+      className={`relative text-neutral-100 ${className}`}
       variants={buttonVariants}
       whileHover="hover" 
       transition={{ duration: 0.2, ease: "easeInOut" }}>
-      <Link to={to} className="block py-2">
+      <Link to={to} className="block py-2 text-neutral-100">
         {children}
       </Link>
 

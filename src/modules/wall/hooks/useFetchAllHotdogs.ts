@@ -10,8 +10,9 @@ export default function useFetchAllHotdogs () {
     async function fetchHotdogs() {
       setLoading(true)
 
-      const { data } = await supabase.functions.invoke('fetch-all-hotdogs')
-      const { data: hotdogs, error } = data
+      const { data: hotdogs, error } = await supabase.from('hotdogs')
+        .select(`id, image`)
+        .eq('status', 'FINISHED')
 
       setData(hotdogs ?? [])
 

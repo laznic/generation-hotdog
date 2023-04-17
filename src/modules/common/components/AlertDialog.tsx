@@ -104,7 +104,7 @@ const AlertDialogDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <AlertDialogPrimitive.Description
     ref={ref}
-    className={cn("text-sm text-white", "dark:text-neutral-100", className)}
+    className={cn("text-sm text-neutral-100", "dark:text-neutral-100", className)}
     {...props}
   />
 ))
@@ -118,7 +118,7 @@ const AlertDialogAction = React.forwardRef<
   <AlertDialogPrimitive.Action
     ref={ref}
     className={cn(
-      "inline-flex h-10 items-center justify-center rounded-sm bg-neutral-900 py-2 px-4 text-sm font-semibold text-white transition-colors hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200 dark:focus:ring-neutral-400 dark:focus:ring-offset-neutral-900",
+      "inline-flex h-10 items-center justify-center rounded-sm bg-neutral-900 py-2 px-4 text-sm font-semibold text-neutral-100 transition-colors hover:bg-neutral-700 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 dark:bg-neutral-100 dark:text-neutral-900 dark:hover:bg-neutral-200 dark:focus:ring-neutral-400 dark:focus:ring-offset-neutral-900",
       className
     )}
     {...props}

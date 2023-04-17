@@ -29,6 +29,7 @@ serve(async (req) => {
     )
   `)
   .eq('status', 'GENERATING')
+  .eq('code', code)
 
   if (!hotdogData?.length) {
     return new Response(
@@ -37,53 +38,7 @@ serve(async (req) => {
     )
   }
 
-  // Pick a minimum number of unique emojis from a list of creators
-// By courtesy of chatGPT because I'm tired at 12:30am and don't want to think about this anymore
-function pickUniqueEmojis(creators: Creator[], minCount: number): string[] {
-  // Create an empty object to store unique emojis for each creator
-  const uniqueEmojis: {[id: string]: string[]} = {};
-
-  console.log('inside func', creators)
-  
-  // Pick a random emoji from each creator until there are at least the minimum number of unique emojis
-  while (Object.values(uniqueEmojis).flat().length < minCount) {
-    creators.forEach((creator) => {
-      if (!uniqueEmojis[creator.id]) {
-        uniqueEmojis[creator.id] = []; // Initialize an empty array for the creator's unique emojis
-      }
-      
-      const availableEmojis = creator.picked_emojis.filter((emoji) => !uniqueEmojis[creator.id].includes(emoji));
-      if (availableEmojis.length > 0) {
-        const randomEmoji = getRandomFromList(availableEmojis); // Pick a random emoji from the creator's list of available emojis
-        
-        uniqueEmojis[creator.id].push(randomEmoji); // Add the emoji to the creator's unique emoji list
-      }
-    });
-  }
-  
-  // Combine the unique emojis for each creator into a single list
-  const pickedEmojis = Object.values(uniqueEmojis).flat();
-  
-  // Ensure the final result contains at least the minimum number of unique emojis
-  const uniquePickedEmojis = [...new Set(pickedEmojis)];
-  while (uniquePickedEmojis.length < minCount) {
-    const randomCreator = getRandomFromList(creators);
-    const availableEmojis = randomCreator.picked_emojis.filter((emoji) => !uniquePickedEmojis.includes(emoji));
-    if (availableEmojis.length > 0) {
-      const randomEmoji = getRandomFromList(availableEmojis);
-      
-      uniquePickedEmojis.push(randomEmoji);
-    }
-  }
-
-  console.log('uniquePickedEmojis', uniquePickedEmojis)
-  
-  // Return the final list of picked emojis
-  return uniquePickedEmojis;
-}
-
   const pickedEmojis = pickUniqueEmojis(hotdogData?.[0]?.creators_hotdogs, 5)
-  console.log(pickedEmojis)
 
   const generatedPrompt = await openAI.createCompletion({
     model: 'text-davinci-003',
@@ -183,7 +138,46 @@ interface Creator {
   picked_emojis: string[];
 }
 
-
+// Pick a minimum number of unique emojis from a list of creators
+// By courtesy of chatGPT because I'm tired at 12:30am and don't want to think about this anymore
+function pickUniqueEmojis(creators: Creator[], minCount: number): string[] {
+  // Create an empty object to store unique emojis for each creator
+  const uniqueEmojis: {[id: string]: string[]} = {};
+  
+  // Pick a random emoji from each creator until there are at least the minimum number of unique emojis
+  while (Object.values(uniqueEmojis).flat().length < minCount) {
+    creators.forEach((creator) => {
+      if (!uniqueEmojis[creator.id]) {
+        uniqueEmojis[creator.id] = []; // Initialize an empty array for the creator's unique emojis
+      }
+      
+      const availableEmojis = creator.picked_emojis.filter((emoji) => !uniqueEmojis[creator.id].includes(emoji));
+      if (availableEmojis.length > 0) {
+        const randomEmoji = getRandomFromList(availableEmojis); // Pick a random emoji from the creator's list of available emojis
+        
+        uniqueEmojis[creator.id].push(randomEmoji); // Add the emoji to the creator's unique emoji list
+      }
+    });
+  }
+  
+  // Combine the unique emojis for each creator into a single list
+  const pickedEmojis = Object.values(uniqueEmojis).flat();
+  
+  // Ensure the final result contains at least the minimum number of unique emojis
+  const uniquePickedEmojis = [...new Set(pickedEmojis)];
+  while (uniquePickedEmojis.length < minCount) {
+    const randomCreator = getRandomFromList(creators);
+    const availableEmojis = randomCreator.picked_emojis.filter((emoji) => !uniquePickedEmojis.includes(emoji));
+    if (availableEmojis.length > 0) {
+      const randomEmoji = getRandomFromList(availableEmojis);
+      
+      uniquePickedEmojis.push(randomEmoji);
+    }
+  }
+  
+  // Return the final list of picked emojis
+  return uniquePickedEmojis;
+}
 
 // Courtesy of: https://animationguides.com/great-prompts-for-image-generation
 const imageTypes = [

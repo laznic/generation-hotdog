@@ -8,7 +8,7 @@ import {
   DropdownMenuTrigger,
 } from "@/modules/common/components/DropdownMenu"
 
-import { CheckCircledIcon, ChevronDownIcon, Cross2Icon, CrossCircledIcon, FaceIcon, Link2Icon, PersonIcon } from '@radix-ui/react-icons'
+import { ArrowDownIcon, CheckCircledIcon, ChevronDownIcon, Cross2Icon, CrossCircledIcon, FaceIcon, Link2Icon, PersonIcon } from '@radix-ui/react-icons'
 import EmojiPicker, { EmojiClickData } from 'emoji-picker-react'
 import { useEffect, useRef, useState } from 'react'
 import { uniq, concat, equals } from 'remeda'
@@ -360,9 +360,11 @@ export default function Room () {
                         onClick={() => readyUp(!readyInState)}
                         className="relative flex items-center w-fit"
                         disabled={!allEmojisAdded}
-                        animate={readyInState ? 'hover' : 'default'}
+                        animate={readyInState ? 'hover' : allEmojisAdded ? 'enabled' : 'default'}
                         transition={{ duration: 0.2, ease: "easeInOut" }}>
-                        <motion.span variants={buttonVariants} className="inline-flex items-center opacity-50 relative font-bold text-xl md:text-2xl 2xl:text-4xl pb-2">
+                        {allEmojisAdded && !readyInState && <ArrowDownIcon className="w-8 h-8 animate-bounce absolute -top-8 left-6" />}
+                        <motion.span
+                          variants={buttonVariants} className="inline-flex items-center opacity-50 relative font-bold text-xl md:text-2xl 2xl:text-4xl pb-2">
                           READY
                           {readyInState ? <CheckCircledIcon className="w-6 h-6 ml-2 2xl:mt-1" /> : <CrossCircledIcon className="ml-2 w-6 h-6 2xl:mt-1" />}
                           <motion.div
@@ -398,6 +400,10 @@ const buttonVariants = {
   default: {
     y: 0,
     opacity: 0.5
+  },
+  enabled: {
+    y: 0,
+    opacity: 1
   },
   hover: {
     y: -4,

@@ -14,7 +14,7 @@ export default function HotdogDetails () {
   useEffect(function fetchData () {
     async function fetch () {
       const { data: hotdog } = await supabase.from('hotdogs')
-      .select(`id, emojis, generated_prompt, image, generated_kanji`)
+      .select(`id, emojis, generated_prompt, image, generated_kanji, image_prompt`)
       .eq('id', id)
 
       setHotdog(hotdog?.[0])

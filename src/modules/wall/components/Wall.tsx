@@ -9,7 +9,7 @@ export default function Wall () {
   if (!data.length) return null
 
   return (
-    <div className="container mx-auto mt-[7vw]">
+    <div className="container mx-auto mt-[7vw] mb-8">
       <motion.ul
         initial="hidden"
         variants={list}

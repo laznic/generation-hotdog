@@ -70,6 +70,7 @@ I'm a fan of Neon Genesis Evangelion, so design has gotten some inspiration from
 - Use more updated Stable Diffusion model
   - Now had to use v1.5 as others didn't produce as good results for hotdogs
 - Organize code better & do some refactoring/improving
+- Something with authentication?
 
 ## The team / contributors
 - laznic ([GitHub](https://github.com/laznic), [Twitter](https://twitter.com/laznic))

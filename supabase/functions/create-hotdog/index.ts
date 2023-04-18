@@ -18,7 +18,7 @@ serve(async (req) => {
 
   const { creatorId } = await req.json()
 
-  const emptyRoom = await supabaseClient.rpc('get_hotdogs_without_creators')
+  const emptyRoom = await supabaseClient.rpc('get_waiting_hotdogs_without_creators')
     .select('code')
     .limit(1)
 

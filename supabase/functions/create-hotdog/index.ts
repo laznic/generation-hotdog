@@ -18,9 +18,17 @@ serve(async (req) => {
 
   const { creatorId } = await req.json()
 
-  const hotdogData = await supabaseClient.from('hotdogs')
-    .insert({})
-    .select()
+  const emptyRoom = await supabaseClient.rpc('get_hotdogs_without_creators')
+    .select('code')
+    .limit(1)
+
+  let hotdogData = emptyRoom
+
+  if (!hotdogData.data?.[0]) {
+    hotdogData = await supabaseClient.from('hotdogs')
+      .insert({})
+      .select('code')
+  }
 
   await supabaseClient.from('creators_hotdogs')
     .insert({ hotdog_code: hotdogData.data?.[0].code, creator_id: creatorId })

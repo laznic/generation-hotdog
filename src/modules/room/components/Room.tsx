@@ -102,7 +102,7 @@ export default function Room () {
       const { data: existingCreatorAssociation } = associationFetch
 
       if (status === 'SUBSCRIBED') {
-        setEmojis(existingCreatorAssociation?.[0].picked_emojis || [])
+        setEmojis(existingCreatorAssociation?.[0]?.picked_emojis || [])
         setReadyInState(!!existingCreatorAssociation?.[0].ready)
 
         await channel.current?.track({

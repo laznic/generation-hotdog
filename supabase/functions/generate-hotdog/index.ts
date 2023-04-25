@@ -49,12 +49,14 @@ serve(async (req) => {
     frequencyPenalty: 0.42
   })
 
+  const promptText = generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '').replace('prompt: ', '').toLowerCase()
+
   const generatedKanjiPrompt = await openAI.createChatCompletion({
     model: 'gpt-3.5-turbo',
     messages: [
       {
         role: 'user',
-        content: `Translate the following text into Japanese kanji: ${generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '')}`
+        content: `Translate the following text into Japanese kanji: ${promptText}`
       }
     ],
     temperature: 0,
@@ -72,8 +74,7 @@ serve(async (req) => {
   const rendering = shouldPickRenderingAndCamera && getRandomFromList(renders)
   const cameraShot = shouldPickRenderingAndCamera && getRandomFromList(cameraShots)
   const cameraLens = shouldPickRenderingAndCamera && getRandomFromList(cameraLenses)
-  
-  const promptText = generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '').toLowerCase()
+ 
   const promptForImage = [imageType, `{${promptText}}`, style, generalAdjustment, color, rendering, cameraShot, cameraLens].filter(Boolean).join(', ')
   
   const response = await fetch(`${Deno.env.get('STABLE_DIFFUSION_HOST')}/v1/generation/stable-diffusion-v1-5/text-to-image`, {

@@ -52,7 +52,7 @@ serve(async (req) => {
   const promptText = generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '').replace('prompt: ', '').toLowerCase()
 
   const generatedKanjiPrompt = await openAI.createChatCompletion({
-    model: 'gpt-3.5-turbo',
+    model: 'gpt-4-turbo-preview',
     messages: [
       {
         role: 'user',

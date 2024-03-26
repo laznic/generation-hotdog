@@ -194,7 +194,7 @@ const imageTypes = [
   "comic-book",
   "digital-art",
   "enhance",
-  "fantasy-art"
+  "fantasy-art",
   "isometric",
   "line-art",
   "low-poly",

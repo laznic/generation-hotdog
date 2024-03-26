@@ -116,7 +116,9 @@ serve(async (req) => {
 
   await supabaseClient.from('hotdogs')
     .update({
-      image: file.publicUrl,
+      // Use the explicit URL to the image as sometimes
+      // the full path might be missing from file.publicUrl
+      image: Deno.env.get('SUPABASE_URL') + `/storage/v1/object/public/hotdogs/public/${code}.png`,
       emojis: pickedEmojis,
       generated_prompt: promptText,
       generated_kanji: generatedKanjiPrompt.choices[0].message.content,

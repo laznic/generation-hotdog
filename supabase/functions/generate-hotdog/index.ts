@@ -44,9 +44,9 @@ serve(async (req) => {
     model: 'gpt-3.5-turbo-instruct',
     prompt: getPromptGuidelines(pickedEmojis ?? []),
     temperature: 0.69,
-    maxTokens: 500,
-    topP: 0.9,
-    frequencyPenalty: 0.42
+    max_tokens: 500,
+    top_p: 0.9,
+    frequency_penalty: 0.42
   })
 
   const promptText = generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '').replace('prompt: ', '').toLowerCase()
@@ -60,9 +60,9 @@ serve(async (req) => {
       }
     ],
     temperature: 0,
-    maxTokens: 500,
-    topP: 1,
-    frequencyPenalty: 0
+    max_tokens: 500,
+    top_p: 1,
+    frequency_penalty: 0
   })
 
   const imageType = getRandomFromList(imageTypes)

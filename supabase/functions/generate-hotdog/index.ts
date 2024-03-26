@@ -41,7 +41,7 @@ serve(async (req) => {
   const pickedEmojis = pickUniqueEmojis(hotdogData?.[0]?.creators_hotdogs, 5)
 
   const generatedPrompt = await openAI.completions.create({
-    model: 'text-davinci-003',
+    model: 'gpt-3.5-turbo-instruct',
     prompt: getPromptGuidelines(pickedEmojis ?? []),
     temperature: 0.69,
     maxTokens: 500,

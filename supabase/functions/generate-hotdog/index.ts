@@ -75,9 +75,9 @@ serve(async (req) => {
   const cameraShot = shouldPickRenderingAndCamera && getRandomFromList(cameraShots)
   const cameraLens = shouldPickRenderingAndCamera && getRandomFromList(cameraLenses)
  
-  const promptForImage = [imageType, `{${promptText}}`, style, generalAdjustment, color, rendering, cameraShot, cameraLens].filter(Boolean).join(', ')
+  const promptForImage = [`{${promptText}}`, style, generalAdjustment, color, rendering, cameraShot, cameraLens].filter(Boolean).join(', ')
   
-  const response = await fetch(`${Deno.env.get('STABLE_DIFFUSION_HOST')}/v1/generation/stable-diffusion-v1-5/text-to-image`, {
+  const response = await fetch(`${Deno.env.get('STABLE_DIFFUSION_HOST')}/v1/generation/stable-diffusion-xl-beta-v2-2-2/text-to-image`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
@@ -90,6 +90,9 @@ serve(async (req) => {
           text: promptForImage
         }
       ],
+      height: 512,
+      width: 512,
+      style_preset: imageType,
       // Randomizing this to provide a bit of variety in results
       cfg_scale: Math.floor(Math.random() * (28 - 10)) + 10,
       sampler: 'K_EULER_ANCESTRAL',
@@ -182,48 +185,23 @@ function pickUniqueEmojis(creators: Creator[], minCount: number): string[] {
 
 // Courtesy of: https://animationguides.com/great-prompts-for-image-generation
 const imageTypes = [
-  "digital illustration",
-  "character reference sheet",
-  "comic strip",
-  "comic book cover",
-  "movie poster",
-  "blueprint",
-  "oil painitng",
-  "matte painting",
-  "photograph",
-  "collage",
-  "concept art",
-  "concept sheet",
-  "pixel art",
-  "fantasy map",
-  "sketch",
-  "hologram",
-  "origami art",
-  "clay",
-  "plasticine",
-  "3d illustration",
-  "low poly",
-  "comic book illustration",
-  "cartoon illustration",
-  "block illustration",
-  "anime",
-  "charcoal illustration",
-  "ink illustration",
-  "woodcut illustration",
-  "watercolor illustration",
-  "pencil illustration",
-  "collage illustration",
-  "acrylic illustration",
-  "line art",
-  "psychedelic illustration",
-  "fashion illustration",
-  "children's book illustration",
-  "caricature",
-  "chalk illustration",
-  "graffiti",
-  "polaroid",
-  "portrait",
-  "sattelite"
+ "3d-model",
+  "analog-film",
+  "anime", 
+  "cinematic",
+  "comic-book",
+  "digital-art",
+  "enhance",
+  "fantasy-art"
+  "isometric",
+  "line-art",
+  "low-poly",
+  "modeling-compound",
+  "neon-punk",
+  "origami",
+  "photographic",
+  "pixel-art",
+  "tile-texture"
 ]
 
 const styles =  [

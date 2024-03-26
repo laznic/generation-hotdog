@@ -40,7 +40,7 @@ serve(async (req) => {
 
   const pickedEmojis = pickUniqueEmojis(hotdogData?.[0]?.creators_hotdogs, 5)
 
-  const generatedPrompt = await openAI.createCompletion({
+  const generatedPrompt = await openAI.completions.create({
     model: 'text-davinci-003',
     prompt: getPromptGuidelines(pickedEmojis ?? []),
     temperature: 0.69,
@@ -51,7 +51,7 @@ serve(async (req) => {
 
   const promptText = generatedPrompt.choices[0].text.replace(/\n/g, '').replace(/\./g, '').replace('prompt: ', '').toLowerCase()
 
-  const generatedKanjiPrompt = await openAI.createChatCompletion({
+  const generatedKanjiPrompt = await openAI.chat.completions.create({
     model: 'gpt-4-turbo-preview',
     messages: [
       {

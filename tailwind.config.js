@@ -132,12 +132,14 @@ export default {
           },
           '91%': {
             opacity: 1,
+            width: '512px',
             height: '512px',
             transform: 'scale(1)',
             filter: 'blur(0)'
           },
           '100%': {
             opacity: 1,
+            width: '512px',
             height: '512px',
             transform: 'scale(1)',
             filter: 'blur(0)'

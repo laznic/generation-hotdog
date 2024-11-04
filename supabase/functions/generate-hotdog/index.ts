@@ -75,38 +75,34 @@ serve(async (req) => {
   const cameraShot = shouldPickRenderingAndCamera && getRandomFromList(cameraShots)
   const cameraLens = shouldPickRenderingAndCamera && getRandomFromList(cameraLenses)
  
-  const promptForImage = [`{${promptText}}`, style, generalAdjustment, color, rendering, cameraShot, cameraLens].filter(Boolean).join(', ')
+  const promptForImage = [`${promptText}`, style, generalAdjustment, color, rendering, cameraShot, cameraLens].filter(Boolean).join(', ')
   
-  const response = await fetch(`${Deno.env.get('STABLE_DIFFUSION_HOST')}/v1/generation/stable-diffusion-xl-beta-v2-2-2/text-to-image`, {
+  const body = new FormData();
+
+  body.append(
+    "prompt",
+    promptForImage
+  );
+
+  body.append("output_format", "jpeg");
+  body.append("mode", "text-to-image");
+
+  const response = await fetch(`${Deno.env.get('STABLE_DIFFUSION_HOST')}/v2beta/stable-image/generate/core`, {
     method: 'POST',
     headers: {
-      'Content-Type': 'application/json',
       Accept: 'application/json',
       Authorization: `Bearer ${Deno.env.get('STABLE_DIFFUSION_API_KEY')}`,
     },
-    body: JSON.stringify({
-      text_prompts: [
-        {
-          text: promptForImage
-        }
-      ],
-      height: 512,
-      width: 512,
-      style_preset: imageType,
-      // Randomizing this to provide a bit of variety in results
-      cfg_scale: Math.floor(Math.random() * (28 - 10)) + 10,
-      sampler: 'K_EULER_ANCESTRAL',
-    })
+    body
   })
 
   const payload = (await response.json())
-  const { artifacts } = payload
 
   const { data } = await supabaseClient
     .storage
     .from('hotdogs')
-    .upload(`public/${code}.png`, base64.toArrayBuffer(artifacts[0].base64), {
-      contentType: 'image/png'
+    .upload(`public/${code}.jpeg`, base64.toArrayBuffer(payload.image), {
+      contentType: 'image/jpeg'
     })
 
   const { data: file } = await supabaseClient
@@ -118,7 +114,7 @@ serve(async (req) => {
     .update({
       // Use the explicit URL to the image as sometimes
       // the full path might be missing from file.publicUrl
-      image: Deno.env.get('SUPABASE_URL') + `/storage/v1/object/public/hotdogs/public/${code}.png`,
+      image: Deno.env.get('SUPABASE_URL') + `/storage/v1/object/public/hotdogs/public/${code}.jpeg`,
       emojis: pickedEmojis,
       generated_prompt: promptText,
       generated_kanji: generatedKanjiPrompt.choices[0].message.content,
